@@ -1,0 +1,91 @@
+<div class="contenedor" role="main">
+  <!-- Resources -->
+  <div
+    class="card-container"
+    style="margin: auto; max-width: 500px; max-height: 800px"
+  >
+    <div class="card-header">
+      <h2>Enviador</h2>
+    </div>
+
+    <div class="card-body">
+      <div class="row">
+        <p>Seleccione el archivo Excel:</p>
+        <div class="input-group mb-3">
+          <div class="custom-file">
+            <input
+              type="file"
+              class="custom-file-input"
+              id="file"
+              aria-describedby="inputGroupFileAddon01"
+              (change)="handleImport($event)"
+            />
+            <label class="custom-file-label" for="inputGroupFile01"
+              >Subir archivo...</label
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="row" hidden>
+        <p>Seleccione la imagen:</p>
+        <div class="input-group mb-3">
+          <div class="custom-file">
+            <input
+              type="file"
+              class="custom-file-input"
+              id="img"
+              aria-describedby="inputGroupFileAddon01"
+            />
+            <label class="custom-file-label" for="inputGroupFile01"
+              >Subir archivo...</label
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <textarea
+          class="form-control"
+          name=""
+          id="mensajeEscrito"
+          cols="30"
+          rows="10"
+          placeholder="Escriba el mensaje a enviar"
+          style="margin-top: 10px"
+          (input)="onChangeTextArea($event)"
+        ></textarea>
+      </div>
+
+      <div class="row" hidden>
+        <button
+          class="btn btn-outline-success"
+          type="button"
+          (click)="enviarMensaje()"
+          style="margin-top: 10px"
+          data-toggle="modal"
+          data-target="#staticBackdrop"
+        >
+          Enviar a:
+        </button>
+        <label style="margin-top: 20px; margin-left: 10px"
+          >{{ nombreCliente }} {{ numeroCliente }}</label
+        >
+      </div>
+
+      <div class="row">
+        <button
+          id="btnEnviarTodos"
+          class="btn btn-outline-success"
+          type="button"
+          (click)="enviarTodos()"
+          style="margin-top: 10px"
+          data-toggle="modal"
+          data-target="#staticBackdrop"
+        >
+          Enviar a todos
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
