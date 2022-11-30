@@ -1,5 +1,5 @@
 <div class="contenedor" role="main">
-  <!-- Resources -->
+  <!-- Elementos del enviador -->
   <div
     class="card-container"
     style="margin: auto; max-width: 500px; max-height: 800px"
@@ -9,7 +9,7 @@
     </div>
 
     <div class="card-body">
-      <div class="row">
+      <div class="row" id="inputExcel">
         <p>Seleccione el archivo Excel:</p>
         <div class="input-group mb-3">
           <div class="custom-file">
@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <div class="row" hidden>
+      <div class="row" id="inputImage" hidden>
         <p>Seleccione la imagen:</p>
         <div class="input-group mb-3">
           <div class="custom-file">
@@ -44,7 +44,7 @@
         </div>
       </div>
 
-      <div class="row">
+      <div class="row" id="mensajeBox">
         <textarea
           class="form-control"
           name=""
@@ -57,7 +57,7 @@
         ></textarea>
       </div>
 
-      <div class="row" hidden>
+      <div class="row" id="enviarUno" hidden>
         <button
           class="btn btn-outline-success"
           type="button"
@@ -73,7 +73,7 @@
         >
       </div>
 
-      <div class="row">
+      <div class="row" id="enviarTodos" hidden>
         <button
           id="btnEnviarTodos"
           class="btn btn-outline-success"
@@ -85,6 +85,12 @@
         >
           Enviar a todos
         </button>
+      </div>
+
+      <div class="row" id="progressBar">
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
       </div>
     </div>
   </div>
