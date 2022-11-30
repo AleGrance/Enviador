@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
-import { map } from 'rxjs/operators';
+import { map, timeout } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import * as XLSX from 'xlsx';
@@ -45,7 +45,8 @@ export class EnviadorComponent implements OnInit {
   }
 
   // Al seleccionar el archivo Excel
-  handleImport($event: any) {
+  handleImport(event: any) {
+    console.log(event);
     this.index = 0;
     this.clientesWa = [];
     this.nombreCliente = '';
@@ -53,7 +54,7 @@ export class EnviadorComponent implements OnInit {
     // Se muestra el btn Enviar mensaje recien al cargar el archivo Excel
     //(<HTMLInputElement>document.getElementById('btnEnviar')).innerHTML = this.btnEnviar;
 
-    const files = $event.target.files;
+    const files = event.target.files;
 
     if (files.length) {
       const file = files[0];
@@ -129,12 +130,25 @@ export class EnviadorComponent implements OnInit {
 
   // Envia el mensaje a todos lo de la lista cada 5 seg -- MASIVO CONTINUO
   enviarTodos() {
-    (<HTMLInputElement>(
-      document.getElementById('btnEnviarTodos')
-    )).style.pointerEvents = "none";
+    // Si no hay archivo seleccionado se muestra el mensaje de alerta
+    if (this.clientesWa.length === 0) {
+      this.toastr.error('Seleccionar un archivo!');
+      return;
+    }
+
+    if (this.mensajeWa.length === 0) {
+      this.toastr.error('Escribir un mensaje!');
+      return;
+    }
+
+    // Cambiar el estado del boton Enviar
+    this.btnCambioEstado('none');
 
     if (this.index > this.clientesWa.length - 1) {
       this.toastr.warning('Ya se envio a todos los de la lista!');
+      this.inputFileEstado();
+      this.clientesWa = [];
+      this.btnCambioEstado('auto');
       return;
     }
 
@@ -169,6 +183,18 @@ export class EnviadorComponent implements OnInit {
         }
       );
     }, 5000);
+  }
+
+  // Cambia el estado del boton para que no se pueda accionar mientras se este enviando
+  btnCambioEstado(param: any) {
+    (<HTMLInputElement>(
+      document.getElementById('btnEnviarTodos')
+    )).style.pointerEvents = param;
+  }
+
+  // Cambia el valor del input-file para que se pueda cambiar el archivo y se pueda cargar otro archivo
+  inputFileEstado() {
+    (<HTMLInputElement>document.getElementById('file')).value = '';
   }
 
   //Cargar imagen
