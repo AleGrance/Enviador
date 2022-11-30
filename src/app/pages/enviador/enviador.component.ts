@@ -11,12 +11,13 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./enviador.component.css'],
 })
 export class EnviadorComponent implements OnInit {
-  title = 'enviador';
+  // Nombre del archivo que se muestra en el html
+  fileName = 'Seleccionar un archivo...';
+
+  // Para enviar el mensaje
   clientesWa: any[] = [];
   clientesLong = 0;
   mensajeWa = '';
-  btnEnviar = '';
-  urlWa = '';
   nombreCliente = '';
   numeroCliente = '';
   index = 0;
@@ -25,7 +26,7 @@ export class EnviadorComponent implements OnInit {
     phone: '',
   };
 
-  // Para la imagen
+  // Para el envio de la imagen
   error = '';
   imageError = '';
   fileInput = '';
@@ -35,7 +36,7 @@ export class EnviadorComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  // Escribir mensaje y cargar el texto en una variable. Concatenar esa variable con la URL que se va abrir
+  // Escribir mensaje y cargar el texto en una variable.
   onChangeTextArea(e: any) {
     this.mensajeWa = (<HTMLInputElement>(
       document.getElementById('mensajeEscrito')
@@ -46,15 +47,16 @@ export class EnviadorComponent implements OnInit {
 
   // Al seleccionar el archivo Excel
   handleImport(event: any) {
-    console.log(event);
     this.index = 0;
     this.clientesWa = [];
     this.nombreCliente = '';
 
-    // Se muestra el btn Enviar mensaje recien al cargar el archivo Excel
-    //(<HTMLInputElement>document.getElementById('btnEnviar')).innerHTML = this.btnEnviar;
-
     const files = event.target.files;
+
+    // Se recorre el array que contiene el archivo y se obtiene el nombre del archivo para mostrar en el html
+    for (let fi of files) {
+      this.fileName = fi.name;
+    }
 
     if (files.length) {
       const file = files[0];
@@ -132,12 +134,12 @@ export class EnviadorComponent implements OnInit {
   enviarTodos() {
     // Si no hay archivo seleccionado se muestra el mensaje de alerta
     if (this.clientesWa.length === 0) {
-      this.toastr.error('Seleccionar un archivo!');
+      this.toastr.error('Seleccione un archivo!');
       return;
     }
 
     if (this.mensajeWa.length === 0) {
-      this.toastr.error('Escribir un mensaje!');
+      this.toastr.error('Escriba un mensaje!');
       return;
     }
 
@@ -147,8 +149,13 @@ export class EnviadorComponent implements OnInit {
     if (this.index > this.clientesWa.length - 1) {
       this.toastr.warning('Ya se envio a todos los de la lista!');
       this.inputFileEstado();
-      this.clientesWa = [];
       this.btnCambioEstado('auto');
+      this.clientesWa = [];
+      this.fileName = 'Seleccionar un archivo...';
+      this.mensajeWa = '';
+      (<HTMLInputElement>(
+        document.getElementById('mensajeEscrito')
+      )).value = '';
       return;
     }
 
