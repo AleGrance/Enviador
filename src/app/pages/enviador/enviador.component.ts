@@ -16,7 +16,6 @@ export class EnviadorComponent implements OnInit {
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
-  clientesLong = 0;
   mensajeWa = '';
   nombreCliente = '';
   numeroCliente = '';
@@ -25,6 +24,7 @@ export class EnviadorComponent implements OnInit {
     message: '',
     phone: '',
   };
+  progressBarText = '';
 
   // Para el envio de la imagen
   error = '';
@@ -105,6 +105,7 @@ export class EnviadorComponent implements OnInit {
         if (typeof result === 'object') {
           this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
           this.index += 1;
+          this.changeProgressBar(this.index);
           this.recorrerArray();
         } else {
           console.log('result post: ', result);
@@ -147,7 +148,7 @@ export class EnviadorComponent implements OnInit {
     this.btnCambioEstado('none');
 
     if (this.index > this.clientesWa.length - 1) {
-      this.toastr.warning('Ya se envio a todos los de la lista!');
+      this.toastr.warning('Ya se envio a todos los de la lista!', 'Enviador Alert', {timeOut: 0});
       this.inputFileEstado();
       this.btnCambioEstado('auto');
       this.clientesWa = [];
@@ -178,6 +179,7 @@ export class EnviadorComponent implements OnInit {
             this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
             console.log('Lo que se envia a la API: ', param);
             this.index += 1;
+            this.changeProgressBar(this.index);
             this.enviarTodos();
           } else {
             console.log('result post: ', result);
@@ -194,14 +196,25 @@ export class EnviadorComponent implements OnInit {
 
   // Cambia el estado del boton para que no se pueda accionar mientras se este enviando
   btnCambioEstado(param: any) {
-    (<HTMLInputElement>(
-      document.getElementById('btnEnviarTodos')
-    )).style.pointerEvents = param;
+    (<HTMLInputElement>(document.getElementById('btnEnviarTodos'))).style.pointerEvents = param;
+    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display = 'none';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.display = 'block';
+    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display = 'block';
   }
 
   // Cambia el valor del input-file para que se pueda cambiar el archivo y se pueda cargar otro archivo
   inputFileEstado() {
     (<HTMLInputElement>document.getElementById('file')).value = '';
+  }
+
+  // Cambia el estado del progressBar
+  changeProgressBar(valor: any) {
+    let porcent = (valor * 100) / this.clientesWa.length;
+    console.log("Progress bar porcentaje: ", porcent.toFixed(0));
+    (<HTMLInputElement>document.getElementById('progressBar')).style.width = porcent + '%';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.width = porcent + '%';
+    //this.progressBarText = "Enviando " + this.index + " de " + this.clientesWa.length;
+    this.progressBarText = "Enviando " + porcent.toFixed(0) + "%";
   }
 
   //Cargar imagen

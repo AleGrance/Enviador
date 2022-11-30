@@ -9,6 +9,7 @@
     </div>
 
     <div class="card-body">
+
       <div class="row" id="inputExcel">
         <p>Seleccione el archivo Excel:</p>
         <div class="input-group mb-3">
@@ -73,7 +74,7 @@
         >
       </div>
 
-      <div class="row" id="enviarTodos" hidden>
+      <div class="row" id="enviarTodos">
         <button
           id="btnEnviarTodos"
           class="btn btn-outline-success"
@@ -87,11 +88,14 @@
         </button>
       </div>
 
-      <div class="row" id="progressBar">
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
+      <div class="row" id="labelEnviando" style="display: none; margin-top: 10px;">
+        <label>Enviando mensaje, favor espere...</label>
       </div>
+
+      <div class="progress" id="progressBar" style="display: none;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{progressBarText}}</div>
+      </div>
+
     </div>
   </div>
 </div>
