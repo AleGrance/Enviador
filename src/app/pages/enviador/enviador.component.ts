@@ -12,7 +12,8 @@ import * as XLSX from 'xlsx';
 })
 export class EnviadorComponent implements OnInit {
   // Nombre del archivo que se muestra en el html
-  fileNameExcel = 'Subir un archivo XLS/XLSX...';
+  fileNameXLS = 'Subir un archivo XLS/XLSX...';
+  fileTypeExcel = '';
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
@@ -26,6 +27,7 @@ export class EnviadorComponent implements OnInit {
     mimeType: '',
     data: '',
     fileName: '',
+    fileSize: 0,
   };
   progressBarText = '';
 
@@ -50,8 +52,13 @@ export class EnviadorComponent implements OnInit {
     this.objWa.message = this.mensajeWa;
   }
 
-  // Al seleccionar el archivo Excel
+  // Al seleccionar el archivo XLS
   handleXLSFile(event: any) {
+    // the only MIME types allowed
+    const allowed_types = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+
     this.index = 0;
     this.clientesWa = [];
     this.nombreCliente = '';
@@ -60,7 +67,18 @@ export class EnviadorComponent implements OnInit {
 
     // Se recorre el array que contiene el archivo y se obtiene el nombre del archivo para mostrar en el html
     for (let fi of files) {
-      this.fileNameExcel = fi.name;
+      this.fileNameXLS = fi.name;
+      this.fileTypeExcel = fi.type;
+    }
+
+    if (!allowed_types.includes(this.fileTypeExcel)) {
+      //define the error message due to wrong MIME type
+      let error = 'Los archivos permitidos son: ( XLS | XLSX | OXLS )';
+      // show an error alert for MIME
+      this.toastr.error(error, 'Error');
+      this.fileNameXLS = 'ERROR';
+      //return false since the MIME type is wrong
+      return;
     }
 
     if (files.length) {
@@ -88,162 +106,7 @@ export class EnviadorComponent implements OnInit {
     }
   }
 
-  // Envia el mensaje uno por uno -- UNO POR UNO
-  enviarMensaje() {
-    // Si no hay archivo seleccionado se muestra el mensaje de alerta
-    if (this.clientesWa.length === 0) {
-      this.toastr.error('Seleccionar un archivo!' + this.nombreCliente);
-      return;
-    }
-
-    if (this.index > this.clientesWa.length - 1) {
-      window.alert('Ya se envio a todos los de la lista!');
-      return;
-    }
-
-    this.objWa.message = this.mensajeWa;
-    this.objWa.phone = this.numeroCliente;
-
-    this.api.post('lead', this.objWa).subscribe(
-      (result) => {
-        //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
-        if (typeof result === 'object') {
-          this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
-          this.index += 1;
-          this.changeProgressBar(this.index);
-          this.recorrerArray();
-        } else {
-          console.log('result post: ', result);
-          this.toastr.warning(result);
-        }
-        console.log('La respuesta de la api: ', result);
-      },
-      (error) => {
-        console.log('Si hay error en el post: ', error);
-      }
-    );
-
-    console.log('Lo que se envia a la api: ', this.objWa);
-  }
-
-  // Recorre el array de clientes y muestra el siguiente contacto a enviar -- UNO POR UNO
-  recorrerArray() {
-    for (let i = 0; i < this.clientesWa.length; i++) {
-      if (i === this.index) {
-        this.numeroCliente = this.clientesWa[i].NRO_CEL;
-        this.nombreCliente = this.clientesWa[i].NOMBRE;
-      }
-    }
-  }
-
-  // Envia el mensaje a todos lo de la lista cada 5 seg -- MASIVO CONTINUO
-  enviarTodos() {
-    // Si no hay archivo seleccionado se muestra el mensaje de alerta
-    if (this.clientesWa.length === 0) {
-      this.toastr.error('Subir un archivo!');
-      return;
-    }
-
-    // Si no se escribió el mensaje
-    if (this.mensajeWa.length === 0) {
-      this.toastr.error('Escriba un mensaje!');
-      return;
-    }
-
-    // Si ya se recorrió toda la lista
-    if (this.index > this.clientesWa.length - 1) {
-      this.resetFormulario();
-      return;
-    }
-
-    this.showProgressBar();
-
-    for (let i = 0; i < this.clientesWa.length; i++) {
-      if (i === this.index) {
-        this.objWa.phone = this.clientesWa[i].NRO_CEL;
-        this.nombreCliente = this.clientesWa[i].NOMBRE;
-        this.envioRetrasado(this.objWa);
-      }
-    }
-  }
-
-  // Funcion POST que retrasa el envio -- MASIVO CONTINUO
-  envioRetrasado(param: any) {
-    setTimeout(() => {
-      this.api.post('lead', this.objWa).subscribe(
-        (result) => {
-          //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
-          if (typeof result === 'object') {
-            this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
-            console.log('Lo que se envia a la API: ', param);
-            this.index += 1;
-            this.changeProgressBar(this.index);
-            this.enviarTodos();
-          } else {
-            console.log('result post: ', result);
-            this.toastr.warning(result);
-          }
-          console.log('La respuesta de la api: ', result);
-        },
-        (error) => {
-          console.log('Si hay error en el post: ', error);
-        }
-      );
-    }, 5000);
-  }
-
-  // Se oculta el boton y se muestra el progressbar
-  showProgressBar() {
-    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
-      'none';
-    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
-      'block';
-    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
-      'block';
-  }
-
-  // Se resetea el formulario
-  resetFormulario() {
-    setTimeout(() => {
-      this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
-        timeOut: 0,
-      });
-    }, 2000);
-
-    this.clientesWa = [];
-    this.fileNameExcel = 'Subir un archivo XLS/XLSX...';
-    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
-    this.mensajeWa = '';
-    (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
-    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
-      'block';
-    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
-      'none';
-    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
-      'none';
-    (<HTMLInputElement>document.getElementById('excelFile')).value = '';
-  }
-
-  // Eliminar la imagen seleccionada
-  deleteMediaFile() {
-    (<HTMLInputElement>document.getElementById('mediaFile')).value = '';
-    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
-    this.objWa.mimeType = '';
-    this.objWa.data = '';
-  }
-
-  // Cambia el estado del progressBar
-  changeProgressBar(valor: any) {
-    let porcent = (valor * 100) / this.clientesWa.length;
-    (<HTMLInputElement>document.getElementById('progressBar')).style.width =
-      porcent + '%';
-    (<HTMLInputElement>document.getElementById('progressBar')).style.width =
-      porcent + '%';
-    //this.progressBarText = "Enviando " + this.index + " de " + this.clientesWa.length;
-    this.progressBarText = 'Enviando ' + porcent.toFixed(0) + '%';
-  }
-
-  // Cargar archivo
+  // Al seleccionar el archivo JPEG o PDF
   handleMediaFile(fileToUpload: any) {
     this.fileInput = fileToUpload.target.files[0];
     this.fileNameMedia = this.fileInput.name;
@@ -326,6 +189,7 @@ export class EnviadorComponent implements OnInit {
         this.objWa.mimeType = this.fileMimeTypeMedia;
         this.objWa.data = this.fileBase64Media;
         this.objWa.fileName = this.fileNameMedia;
+        this.objWa.fileSize = this.fileSizeMedia;
 
         console.log('Mime type: ', this.fileMimeTypeMedia);
         console.log('Base64: ', this.fileBase64Media);
@@ -336,5 +200,175 @@ export class EnviadorComponent implements OnInit {
       reader.readAsDataURL(fileToUpload.target.files[0]);
       //console.log(reader);
     }
+  }
+
+  // Envia el mensaje uno por uno -- UNO POR UNO
+  enviarMensaje() {
+    // Si no hay archivo seleccionado se muestra el mensaje de alerta
+    if (this.clientesWa.length === 0) {
+      this.toastr.error('Seleccionar un archivo!' + this.nombreCliente);
+      return;
+    }
+
+    if (this.index > this.clientesWa.length - 1) {
+      window.alert('Ya se envio a todos los de la lista!');
+      return;
+    }
+
+    this.objWa.message = this.mensajeWa;
+    this.objWa.phone = this.numeroCliente;
+
+    this.api.post('lead', this.objWa).subscribe(
+      (result: any) => {
+        //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
+        if (typeof result === 'object') {
+          this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
+          this.index += 1;
+          this.changeProgressBar(this.index);
+          this.recorrerArray();
+        } else {
+          console.log('result post: ', result);
+          this.toastr.warning(result);
+        }
+        console.log('La respuesta de la api: ', result.responseExSave);
+      },
+      (error) => {
+        console.log('Si hay error en el post: ', error);
+        this.toastr.error(error, 'Error', { timeOut: 0 });
+      }
+    );
+
+    console.log('Lo que se envia a la api: ', this.objWa);
+  }
+
+  // Recorre el array de clientes y muestra el siguiente contacto a enviar -- UNO POR UNO
+  recorrerArray() {
+    for (let i = 0; i < this.clientesWa.length; i++) {
+      if (i === this.index) {
+        this.numeroCliente = this.clientesWa[i].NRO_CEL;
+        this.nombreCliente = this.clientesWa[i].NOMBRE;
+      }
+    }
+  }
+
+  // Envia el mensaje a todos lo de la lista cada 5 seg -- MASIVO CONTINUO
+  enviarTodos() {
+    // Si no hay archivo seleccionado se muestra el mensaje de alerta
+    if (this.clientesWa.length === 0) {
+      this.toastr.error('Subir un archivo!');
+      return;
+    }
+
+    // Si no se escribió el mensaje
+    if (this.mensajeWa.length === 0) {
+      this.toastr.error('Escriba un mensaje!');
+      return;
+    }
+
+    // Si ya se recorrió toda la lista
+    if (this.index > this.clientesWa.length - 1) {
+      this.resetFormulario();
+      return;
+    }
+
+    this.showProgressBar();
+
+    for (let i = 0; i < this.clientesWa.length; i++) {
+      if (i === this.index) {
+        this.objWa.phone = this.clientesWa[i].NRO_CEL;
+        this.nombreCliente = this.clientesWa[i].NOMBRE;
+        this.envioRetrasado(this.objWa);
+      }
+    }
+  }
+
+  // Funcion POST que retrasa el envio -- MASIVO CONTINUO
+  envioRetrasado(param: any) {
+    setTimeout(() => {
+      this.api.post('lead', this.objWa).subscribe(
+        (result: any) => {
+          //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
+          if (typeof result === 'object') {
+            //this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
+            console.log('Lo que se envia a la API: ', param);
+            this.index += 1;
+            this.changeProgressBar(this.index);
+            this.enviarTodos();
+          } else {
+            console.log('result post: ', result);
+            this.toastr.warning(result);
+          }
+          console.log('La respuesta de la api: ', result.responseExSave);
+          if (result.responseExSave.error) {
+            //console.log(result.responseExSave.error, this.numeroCliente);
+            window.alert(
+              ' Verificar el numero: ' +
+                this.numeroCliente +
+                ', no debe contener espacios ni caracteres especiales: '
+            );
+            this.toastr.error(
+              result.responseExSave.error + ' ' + this.numeroCliente,
+              'Error',
+              { timeOut: 0 }
+            );
+          }
+        },
+        (error) => {
+          console.log('Si hay error en el post: ', error);
+          this.toastr.error(error.message, 'Error', { timeOut: 0 });
+        }
+      );
+    }, 5000);
+  }
+
+  // Se oculta el boton y se muestra el progressbar
+  showProgressBar() {
+    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
+      'block';
+    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
+      'block';
+  }
+
+  // Se resetea el formulario
+  resetFormulario() {
+    setTimeout(() => {
+      this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
+        timeOut: 0,
+      });
+    }, 2000);
+
+    this.clientesWa = [];
+    this.fileNameXLS = 'Subir un archivo XLS/XLSX...';
+    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
+    this.mensajeWa = '';
+    (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
+    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
+      'block';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('excelFile')).value = '';
+  }
+
+  // Eliminar la imagen seleccionada
+  deleteMediaFile() {
+    (<HTMLInputElement>document.getElementById('mediaFile')).value = '';
+    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
+    this.objWa.mimeType = '';
+    this.objWa.data = '';
+  }
+
+  // Cambia el estado del progressBar
+  changeProgressBar(valor: any) {
+    let porcent = (valor * 100) / this.clientesWa.length;
+    (<HTMLInputElement>document.getElementById('progressBar')).style.width =
+      porcent + '%';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.width =
+      porcent + '%';
+    //this.progressBarText = "Enviando " + this.index + " de " + this.clientesWa.length;
+    this.progressBarText = 'Enviando ' + porcent.toFixed(0) + '%';
   }
 }

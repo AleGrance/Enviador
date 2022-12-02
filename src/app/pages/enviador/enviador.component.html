@@ -2,7 +2,7 @@
   <!-- Elementos del enviador -->
   <div
     class="card-container"
-    style="margin: auto; max-width: 500px; max-height: 800px"
+    style="margin: auto; max-width: 500px;"
   >
     <div class="card-header">
       <h2>Enviador Web</h2>
@@ -23,7 +23,7 @@
               (change)="handleXLSFile($event)"
             />
             <label id="fileName" class="custom-file-label" for="inputGroupFile01"
-              >{{fileNameExcel}}</label
+              >{{fileNameXLS}}</label
             >
           </div>
         </div>
@@ -46,7 +46,7 @@
             >
           </div>
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" (click)="deleteMediaFile()">Eliminar</button>
+            <button class="btn btn-outline-danger" type="button" (click)="deleteMediaFile()">Eliminar</button>
          </div>
         </div>
       </div>
