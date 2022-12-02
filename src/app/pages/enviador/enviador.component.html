@@ -5,7 +5,7 @@
     style="margin: auto; max-width: 500px; max-height: 800px"
   >
     <div class="card-header">
-      <h2>Enviador</h2>
+      <h2>Enviador Web</h2>
     </div>
 
     <div class="card-body">
@@ -17,12 +17,13 @@
             <input
               type="file"
               class="custom-file-input"
-              id="file"
+              id="excelFile"
               aria-describedby="inputGroupFileAddon01"
-              (change)="handleImport($event)"
+              lang="es"
+              (change)="handleExcelFile($event)"
             />
             <label id="fileName" class="custom-file-label" for="inputGroupFile01"
-              >{{fileName}}</label
+              >{{fileNameExcel}}</label
             >
           </div>
         </div>
@@ -35,14 +36,18 @@
             <input
               type="file"
               class="custom-file-input"
-              id="img"
+              id="mediaFile"
               aria-describedby="inputGroupFileAddon01"
+              lang="es"
               (change)="handleImageUpload($event)"
             />
             <label class="custom-file-label" for="inputGroupFile01"
-              >Subir archivo...</label
+              >{{fileNameMedia}}</label
             >
           </div>
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" (click)="deleteMediaFile()">Eliminar</button>
+         </div>
         </div>
       </div>
 

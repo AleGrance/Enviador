@@ -12,7 +12,7 @@ import * as XLSX from 'xlsx';
 })
 export class EnviadorComponent implements OnInit {
   // Nombre del archivo que se muestra en el html
-  fileName = 'Seleccionar un archivo...';
+  fileNameExcel = 'Subir un archivo XLS/XLSX...';
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
@@ -23,16 +23,18 @@ export class EnviadorComponent implements OnInit {
   objWa = {
     message: '',
     phone: '',
+    mimeType: '',
+    data: '',
+    fileName: ''
   };
   progressBarText = '';
 
   // Para el envio del adjunto
   error = '';
-  imageError = '';
   fileInput: any;
-  fileMimeTypeMedia = "";
+  fileMimeTypeMedia = '';
   fileBase64Media: string = '';
-  fileNameMedia = "";
+  fileNameMedia = 'Subir un archivo JPG/PDF...';
   fileSizeMedia = 0;
 
   constructor(private api: ApiService, private toastr: ToastrService) {}
@@ -49,7 +51,7 @@ export class EnviadorComponent implements OnInit {
   }
 
   // Al seleccionar el archivo Excel
-  handleImport(event: any) {
+  handleExcelFile(event: any) {
     this.index = 0;
     this.clientesWa = [];
     this.nombreCliente = '';
@@ -58,7 +60,7 @@ export class EnviadorComponent implements OnInit {
 
     // Se recorre el array que contiene el archivo y se obtiene el nombre del archivo para mostrar en el html
     for (let fi of files) {
-      this.fileName = fi.name;
+      this.fileNameExcel = fi.name;
     }
 
     if (files.length) {
@@ -138,7 +140,7 @@ export class EnviadorComponent implements OnInit {
   enviarTodos() {
     // Si no hay archivo seleccionado se muestra el mensaje de alerta
     if (this.clientesWa.length === 0) {
-      this.toastr.error('Seleccione un archivo!');
+      this.toastr.error('Subir un archivo!');
       return;
     }
 
@@ -165,7 +167,7 @@ export class EnviadorComponent implements OnInit {
     }
   }
 
-  // Funcion que retrasa el envio -- MASIVO CONTINUO
+  // Funcion POST que retrasa el envio -- MASIVO CONTINUO
   envioRetrasado(param: any) {
     setTimeout(() => {
       this.api.post('lead', this.objWa).subscribe(
@@ -202,11 +204,15 @@ export class EnviadorComponent implements OnInit {
 
   // Se resetea el formulario
   resetFormulario() {
-    this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
-      timeOut: 0,
-    });
+    setTimeout(() => {
+      this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
+        timeOut: 0,
+      });
+    }, 2000);
+    
     this.clientesWa = [];
-    this.fileName = 'Seleccionar un archivo...';
+    this.fileNameExcel = 'Subir un archivo XLS/XLSX...';
+    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
     this.mensajeWa = '';
     (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
     (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
@@ -215,7 +221,14 @@ export class EnviadorComponent implements OnInit {
       'none';
     (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
       'none';
-    (<HTMLInputElement>document.getElementById('file')).value = '';
+    (<HTMLInputElement>document.getElementById('excelFile')).value = '';
+  }
+
+  // Eliminar la imagen seleccionada
+  deleteMediaFile() {
+    (<HTMLInputElement>document.getElementById('mediaFile')).value = '';
+    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
+
   }
 
   // Cambia el estado del progressBar
@@ -229,12 +242,12 @@ export class EnviadorComponent implements OnInit {
     this.progressBarText = 'Enviando ' + porcent.toFixed(0) + '%';
   }
 
-  //Cargar imagen
+  //Cargar archivo
   handleImageUpload(fileToUpload: any) {
     this.fileInput = fileToUpload.target.files[0];
     this.fileNameMedia = this.fileInput.name;
     this.fileSizeMedia = this.fileInput.size;
-    //console.log(this.fileInput);
+    console.log(this.fileInput);
 
     // check for image to upload
     // this checks if the user has uploaded any file
@@ -244,29 +257,29 @@ export class EnviadorComponent implements OnInit {
       // the only MIME types allowed
       const allowed_types = ['image/png', 'image/jpeg', 'image/jpg'];
       // max image height allowed
-      const max_height = 14200;
+      const max_height = 1080;
       //max image width allowed
-      const max_width = 15600;
+      const max_width = 720;
 
       // check the file uploaded by the user
-      if (fileToUpload.target.files[0].size > max_size) {
-        console.log('Size exedido!');
-        //show error
-        this.error = 'max image size allowed is ' + max_size / 1000 + 'Mb';
-        //show an error alert using the Toastr service.
-        this.toastr.error(this.imageError, 'Error');
-        return;
-      }
+      // if (this.fileInput.size > max_size) {
+      //   //show error
+      //   this.error = 'max image size allowed is ' + max_size / 1000 + 'Mb';
+      //   //show an error alert using the Toastr service.
+      //   this.toastr.error(this.error, 'Error');
+      //   return;
+      // }
 
       //check for allowable types
-      if (!allowed_types.includes(this.fileInput.type)) {
-        // define the error message due to wrong MIME type
-        let error = 'Los archivos permitidos son: ( JPEG | JPG | PNG )';
-        // show an error alert for MIME
-        this.toastr.error(error,'Error');
-        //return false since the MIME type is wrong
-        return;
-      }
+      // if (!allowed_types.includes(this.fileInput.type)) {
+      //   // define the error message due to wrong MIME type
+      //   let error = 'Los archivos permitidos son: ( JPEG | JPG | PNG )';
+      //   // show an error alert for MIME
+      //   this.toastr.error(error, 'Error');
+      //   //return false since the MIME type is wrong
+      //   return;
+      // }
+
       // define a file reader constant
       const reader = new FileReader();
       // read the file on load
@@ -275,38 +288,48 @@ export class EnviadorComponent implements OnInit {
         const image = new Image();
         // get the image source
         image.src = e.target.result;
-        // @ts-ignore
-        // image.onload = rs => {
-        //   // get the image height read
-        //   const img_height = rs.currentTarget['height'];
-        //   // get the image width read
-        //   const img_width = rs.currentTarget['width'];
-        //   // check if the dimensions meet the required height and width
-        //   if (img_height > max_height && img_width > max_width) {
-        //     // throw error due to unmatched dimensions
-        //     this.error =
-        //       'Maximum dimensions allowed: ' +
-        //       max_height +
-        //       '*' +
-        //       max_width +
-        //       'px';
-        //     return false;
-        //   } else {
-        //     // otherise get the base64 image
-        //     this.uploadedImageBase64 = e.target.result;
-        //     console.log(this.uploadedImageBase64);
-        //   }
-        // };
 
+        image.onload = (rs) => {
+          // get the image height read
+          // const img_height = image.height;
+          // // get the image width read
+          // const img_width = image.width;
+          // check if the dimensions meet the required height and width
+          // if (img_height > max_height && img_width > max_width) {
+          //   console.log('Imagen medida!');
+          //   // throw error due to unmatched dimensions
+          //   this.error =
+          //     'Maximum dimensions allowed: ' +
+          //     max_height +
+          //     '*' +
+          //     max_width +
+          //     'px';
+          //   this.toastr.error(this.error, 'Error');
+          //   return;
+          // } else {
+          //   // otherise get the base64 image
+          //   this.fileMimeTypeMedia = image.src.split(';base64,')[0];
+          //   this.fileMimeTypeMedia = this.fileMimeTypeMedia.slice(5);
+          //   this.fileBase64Media = image.src.split(',')[1];
+          //   // console.log("Mime type: ",this.fileMimeTypeMedia);
+          //   // console.log("Base64: ", this.fileBase64Media);
+          //   // console.log("Name: ", this.fileNameMedia);
+          //   // console.log("Type: ", this.fileSizeMedia);
+          // }
+        };
+        
         this.fileMimeTypeMedia = image.src.split(';base64,')[0];
         this.fileMimeTypeMedia = this.fileMimeTypeMedia.slice(5);
         this.fileBase64Media = image.src.split(',')[1];
-        
-        console.log("Mime type: ",this.fileMimeTypeMedia);
-        console.log("Base64: ", this.fileBase64Media);
-        console.log("Name: ", this.fileNameMedia);
-        console.log("Type: ", this.fileSizeMedia);
 
+        this.objWa.mimeType = this.fileMimeTypeMedia;
+        this.objWa.data = this.fileBase64Media;
+        this.objWa.fileName = this.fileNameMedia;
+
+        console.log('Mime type: ', this.fileMimeTypeMedia);
+        console.log('Base64: ', this.fileBase64Media);
+        console.log('Name: ', this.fileNameMedia);
+        console.log('Size: ', this.fileSizeMedia);
       };
       // reader as data url
       reader.readAsDataURL(fileToUpload.target.files[0]);
