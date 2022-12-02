@@ -26,11 +26,14 @@ export class EnviadorComponent implements OnInit {
   };
   progressBarText = '';
 
-  // Para el envio de la imagen
+  // Para el envio del adjunto
   error = '';
   imageError = '';
-  fileInput = '';
-  uploadedImageBase64: string = '';
+  fileInput: any;
+  fileMimeTypeMedia = "";
+  fileBase64Media: string = '';
+  fileNameMedia = "";
+  fileSizeMedia = 0;
 
   constructor(private api: ApiService, private toastr: ToastrService) {}
 
@@ -227,69 +230,87 @@ export class EnviadorComponent implements OnInit {
   }
 
   //Cargar imagen
-  // handleImageUpload(fileToUpload: any) {
-  //   // check for image to upload
-  //   // this checks if the user has uploaded any file
-  //   if (fileToUpload.target.files && fileToUpload.target.files[0]) {
-  //     // calculate your image sizes allowed for upload
-  //     const max_size = 20971510;
-  //     // the only MIME types allowed
-  //     const allowed_types = ['image/png', 'image/jpeg','image/jpg'];
-  //     // max image height allowed
-  //     const max_height = 14200;
-  //     //max image width allowed
-  //     const max_width = 15600;
+  handleImageUpload(fileToUpload: any) {
+    this.fileInput = fileToUpload.target.files[0];
+    this.fileNameMedia = this.fileInput.name;
+    this.fileSizeMedia = this.fileInput.size;
+    //console.log(this.fileInput);
 
-  //     // check the file uploaded by the user
-  //     if (fileToUpload.target.files[0].size > max_size) {
-  //       //show error
-  //       this.error = 'max image size allowed is ' + max_size / 1000 + 'Mb';
-  //       //show an error alert using the Toastr service.
-  //       this.toastr.error(this.imageError,'Error');
-  //       return false;
-  //     }
-  //     // check for allowable types
-  //     // if (!_.includes(allowed_types, fileInput.target.files[0].type)) {
-  //     //   // define the error message due to wrong MIME type
-  //     //   let error = 'The allowed images are: ( JPEG | JPG | PNG )';
-  //     //   // show an error alert for MIME
-  //     //   this.toastrService.error(error,'Error');
-  //     //   //return false since the MIME type is wrong
-  //     //   return false;
-  //     // }
-  //     // define a file reader constant
-  //     const reader = new FileReader();
-  //     // read the file on load
-  //     reader.onload = (e: any) => {
-  //       // create an instance of the Image()
-  //       const image = new Image();
-  //       // get the image source
-  //       image.src = e.target.result;
-  //       // @ts-ignore
-  //       // image.onload = rs => {
-  //       //   // get the image height read
-  //       //   const img_height = rs.currentTarget['height'];
-  //       //   // get the image width read
-  //       //   const img_width = rs.currentTarget['width'];
-  //       //   // check if the dimensions meet the required height and width
-  //       //   if (img_height > max_height && img_width > max_width) {
-  //       //     // throw error due to unmatched dimensions
-  //       //     this.error =
-  //       //       'Maximum dimensions allowed: ' +
-  //       //       max_height +
-  //       //       '*' +
-  //       //       max_width +
-  //       //       'px';
-  //       //     return false;
-  //       //   } else {
-  //       //     // otherise get the base64 image
-  //       //     this.uploadedImageBase64 = e.target.result;
+    // check for image to upload
+    // this checks if the user has uploaded any file
+    if (fileToUpload.target.files && fileToUpload.target.files[0]) {
+      // calculate your image sizes allowed for upload
+      const max_size = 20971510;
+      // the only MIME types allowed
+      const allowed_types = ['image/png', 'image/jpeg', 'image/jpg'];
+      // max image height allowed
+      const max_height = 14200;
+      //max image width allowed
+      const max_width = 15600;
 
-  //       //   }
-  //       // };
-  //     };
-  //     // reader as data url
-  //     reader.readAsDataURL(fileToUpload.target.files[0]);
-  //   }
-  // }
+      // check the file uploaded by the user
+      if (fileToUpload.target.files[0].size > max_size) {
+        console.log('Size exedido!');
+        //show error
+        this.error = 'max image size allowed is ' + max_size / 1000 + 'Mb';
+        //show an error alert using the Toastr service.
+        this.toastr.error(this.imageError, 'Error');
+        return;
+      }
+
+      //check for allowable types
+      if (!allowed_types.includes(this.fileInput.type)) {
+        // define the error message due to wrong MIME type
+        let error = 'Los archivos permitidos son: ( JPEG | JPG | PNG )';
+        // show an error alert for MIME
+        this.toastr.error(error,'Error');
+        //return false since the MIME type is wrong
+        return;
+      }
+      // define a file reader constant
+      const reader = new FileReader();
+      // read the file on load
+      reader.onload = (e: any) => {
+        // create an instance of the Image()
+        const image = new Image();
+        // get the image source
+        image.src = e.target.result;
+        // @ts-ignore
+        // image.onload = rs => {
+        //   // get the image height read
+        //   const img_height = rs.currentTarget['height'];
+        //   // get the image width read
+        //   const img_width = rs.currentTarget['width'];
+        //   // check if the dimensions meet the required height and width
+        //   if (img_height > max_height && img_width > max_width) {
+        //     // throw error due to unmatched dimensions
+        //     this.error =
+        //       'Maximum dimensions allowed: ' +
+        //       max_height +
+        //       '*' +
+        //       max_width +
+        //       'px';
+        //     return false;
+        //   } else {
+        //     // otherise get the base64 image
+        //     this.uploadedImageBase64 = e.target.result;
+        //     console.log(this.uploadedImageBase64);
+        //   }
+        // };
+
+        this.fileMimeTypeMedia = image.src.split(';base64,')[0];
+        this.fileMimeTypeMedia = this.fileMimeTypeMedia.slice(5);
+        this.fileBase64Media = image.src.split(',')[1];
+        
+        console.log("Mime type: ",this.fileMimeTypeMedia);
+        console.log("Base64: ", this.fileBase64Media);
+        console.log("Name: ", this.fileNameMedia);
+        console.log("Type: ", this.fileSizeMedia);
+
+      };
+      // reader as data url
+      reader.readAsDataURL(fileToUpload.target.files[0]);
+      //console.log(reader);
+    }
+  }
 }
