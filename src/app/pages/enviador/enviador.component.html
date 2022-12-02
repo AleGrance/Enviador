@@ -11,7 +11,7 @@
     <div class="card-body">
 
       <div class="row" id="inputExcel">
-        <p>Seleccione el archivo Excel:</p>
+        <p>Seleccione el listado:</p>
         <div class="input-group mb-3">
           <div class="custom-file">
             <input
@@ -20,7 +20,7 @@
               id="excelFile"
               aria-describedby="inputGroupFileAddon01"
               lang="es"
-              (change)="handleExcelFile($event)"
+              (change)="handleXLSFile($event)"
             />
             <label id="fileName" class="custom-file-label" for="inputGroupFile01"
               >{{fileNameExcel}}</label
@@ -39,7 +39,7 @@
               id="mediaFile"
               aria-describedby="inputGroupFileAddon01"
               lang="es"
-              (change)="handleImageUpload($event)"
+              (change)="handleMediaFile($event)"
             />
             <label class="custom-file-label" for="inputGroupFile01"
               >{{fileNameMedia}}</label

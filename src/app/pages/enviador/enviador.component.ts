@@ -25,7 +25,7 @@ export class EnviadorComponent implements OnInit {
     phone: '',
     mimeType: '',
     data: '',
-    fileName: ''
+    fileName: '',
   };
   progressBarText = '';
 
@@ -51,7 +51,7 @@ export class EnviadorComponent implements OnInit {
   }
 
   // Al seleccionar el archivo Excel
-  handleExcelFile(event: any) {
+  handleXLSFile(event: any) {
     this.index = 0;
     this.clientesWa = [];
     this.nombreCliente = '';
@@ -209,7 +209,7 @@ export class EnviadorComponent implements OnInit {
         timeOut: 0,
       });
     }, 2000);
-    
+
     this.clientesWa = [];
     this.fileNameExcel = 'Subir un archivo XLS/XLSX...';
     this.fileNameMedia = 'Subir un archivo JPG/PDF...';
@@ -228,7 +228,8 @@ export class EnviadorComponent implements OnInit {
   deleteMediaFile() {
     (<HTMLInputElement>document.getElementById('mediaFile')).value = '';
     this.fileNameMedia = 'Subir un archivo JPG/PDF...';
-
+    this.objWa.mimeType = '';
+    this.objWa.data = '';
   }
 
   // Cambia el estado del progressBar
@@ -242,8 +243,8 @@ export class EnviadorComponent implements OnInit {
     this.progressBarText = 'Enviando ' + porcent.toFixed(0) + '%';
   }
 
-  //Cargar archivo
-  handleImageUpload(fileToUpload: any) {
+  // Cargar archivo
+  handleMediaFile(fileToUpload: any) {
     this.fileInput = fileToUpload.target.files[0];
     this.fileNameMedia = this.fileInput.name;
     this.fileSizeMedia = this.fileInput.size;
@@ -317,7 +318,7 @@ export class EnviadorComponent implements OnInit {
           //   // console.log("Type: ", this.fileSizeMedia);
           // }
         };
-        
+
         this.fileMimeTypeMedia = image.src.split(';base64,')[0];
         this.fileMimeTypeMedia = this.fileMimeTypeMedia.slice(5);
         this.fileBase64Media = image.src.split(',')[1];
