@@ -267,6 +267,12 @@ export class EnviadorComponent implements OnInit {
 
     // Si ya se recorrió toda la lista
     if (this.index > this.clientesWa.length - 1) {
+      setTimeout(() => {
+        this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
+          timeOut: 0,
+        });
+      }, 1000);
+
       this.resetFormulario();
       return;
     }
@@ -287,8 +293,34 @@ export class EnviadorComponent implements OnInit {
     setTimeout(() => {
       this.api.post('lead', this.objWa).subscribe(
         (result: any) => {
+          // Checks if there is an error in the response before continue
+          if (result.responseExSave.error) {
+            const errMsg = result.responseExSave.error.slice(0, 17);
+            console.log(errMsg);
+
+            if (errMsg === 'Evaluation failed') {
+              window.alert(
+                'Verificar el numero: ' +
+                  this.numeroCliente +
+                  ' se ha detenido el envío en este registro'
+              );
+
+              this.toastr.error(result.responseExSave.error, 'Error', {
+                timeOut: 0,
+              });
+              this.resetFormulario();
+              return;
+            }
+
+            this.toastr.error(result.responseExSave.error, 'Error', {
+              timeOut: 0,
+            });
+            this.resetFormulario();
+            return;
+          }
+
           //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
-          if (typeof result === 'object') {
+          if (result.responseExSave.id) {
             //this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
             console.log('Lo que se envia a la API: ', param);
             this.index += 1;
@@ -299,25 +331,14 @@ export class EnviadorComponent implements OnInit {
             this.toastr.warning(result);
           }
           console.log('La respuesta de la api: ', result.responseExSave);
-          if (result.responseExSave.error) {
-            //console.log(result.responseExSave.error, this.numeroCliente);
-            window.alert(
-              ' Verificar el numero: ' +
-                this.numeroCliente +
-                ', no debe contener espacios ni caracteres especiales: '
-            );
-            this.toastr.error(
-              result.responseExSave.error + ' ' + this.numeroCliente,
-              'Error',
-              { timeOut: 0 }
-            );
-          }
         },
         (error) => {
-          console.log('Si hay error en el post: ', error);
-          this.toastr.error(error.message, 'Error', { timeOut: 0 });
+          this.toastr.error(error.message, 'Error', {
+            timeOut: 0,
+          });
         }
       );
+      // Tiempo de retraso de envio en ms
     }, 5000);
   }
 
@@ -333,12 +354,6 @@ export class EnviadorComponent implements OnInit {
 
   // Se resetea el formulario
   resetFormulario() {
-    setTimeout(() => {
-      this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
-        timeOut: 0,
-      });
-    }, 2000);
-
     this.clientesWa = [];
     this.fileNameXLS = 'Subir un archivo XLS/XLSX...';
     this.fileNameMedia = 'Subir un archivo JPG/PDF...';
