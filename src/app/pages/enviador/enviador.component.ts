@@ -298,6 +298,15 @@ export class EnviadorComponent implements OnInit {
             const errMsg = result.responseExSave.error.slice(0, 17);
             console.log(errMsg);
 
+            if (errMsg === 'Escanee el código') {
+              this.toastr.error(result.responseExSave.error + "", 'Error', {
+                timeOut: 0,
+                enableHtml: true
+              });
+              this.resetFormulario();
+              return;
+            }
+
             if (errMsg === 'Evaluation failed') {
               window.alert(
                 'Verificar el numero: ' +
