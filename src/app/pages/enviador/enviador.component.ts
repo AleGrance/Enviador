@@ -12,7 +12,7 @@ import * as XLSX from 'xlsx';
 })
 export class EnviadorComponent implements OnInit {
   // Nombre del archivo que se muestra en el html
-  fileNameXLS = 'Subir un archivo XLS/XLSX...';
+  fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
   fileTypeExcel = '';
 
   // Para enviar el mensaje
@@ -57,6 +57,7 @@ export class EnviadorComponent implements OnInit {
     // the only MIME types allowed
     const allowed_types = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.oasis.opendocument.spreadsheet'
     ];
 
     this.index = 0;
@@ -71,9 +72,11 @@ export class EnviadorComponent implements OnInit {
       this.fileTypeExcel = fi.type;
     }
 
+    console.log(this.fileTypeExcel);
+
     if (!allowed_types.includes(this.fileTypeExcel)) {
       //define the error message due to wrong MIME type
-      let error = 'Los archivos permitidos son: ( XLS | XLSX | OXLS )';
+      let error = 'Los archivos permitidos son: ( XLS | XLSX | ODS )';
       // show an error alert for MIME
       this.toastr.error(error, 'Error');
       this.fileNameXLS = 'ERROR';
@@ -347,8 +350,8 @@ export class EnviadorComponent implements OnInit {
           });
         }
       );
-      // Tiempo de retraso de envio en ms
-    }, 5000);
+      // Tiempo de retraso de envio en milisegundos
+    }, 10000);
   }
 
   // Se oculta el boton y se muestra el progressbar
@@ -364,7 +367,7 @@ export class EnviadorComponent implements OnInit {
   // Se resetea el formulario
   resetFormulario() {
     this.clientesWa = [];
-    this.fileNameXLS = 'Subir un archivo XLS/XLSX...';
+    this.fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
     this.fileNameMedia = 'Subir un archivo JPG/PDF...';
     this.mensajeWa = '';
     (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
