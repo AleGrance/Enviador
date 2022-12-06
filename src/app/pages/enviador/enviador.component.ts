@@ -302,7 +302,7 @@ export class EnviadorComponent implements OnInit {
             console.log(errMsg);
 
             if (errMsg === 'Escanee el código') {
-              this.toastr.error(result.responseExSave.error, 'Error', {
+              this.toastr.error(result.responseExSave.error + " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>", 'Error', {
                 timeOut: 0,
                 enableHtml: true
               });
