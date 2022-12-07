@@ -100,7 +100,6 @@ export class EnviadorComponent implements OnInit {
               //console.log(this.clientesWa[this.index]);
               this.nombreCliente = this.clientesWa[this.index].NOMBRE;
               this.numeroCliente = this.clientesWa[this.index].NRO_CEL;
-              
             }
           }
         }
@@ -254,7 +253,7 @@ export class EnviadorComponent implements OnInit {
     }
   }
 
-  // Envia el mensaje a todos lo de la lista cada 5 seg -- MASIVO CONTINUO
+  // Envia el mensaje a todos lo de la lista cada 10 seg -- MASIVO CONTINUO
   enviarTodos() {
     // Si no hay archivo seleccionado se muestra el mensaje de alerta
     if (this.clientesWa.length === 0) {
@@ -286,7 +285,8 @@ export class EnviadorComponent implements OnInit {
       if (i === this.index) {
         this.objWa.phone = this.clientesWa[i].NRO_CEL;
         this.nombreCliente = this.clientesWa[i].NOMBRE;
-        this.objWa.message = this.mensajeSaludo + this.nombreCliente + ". " + this.mensajeWa;
+        //this.objWa.message = this.mensajeSaludo + this.nombreCliente + ". " + this.mensajeWa;
+        this.objWa.message = this.mensajeWa;
         this.envioRetrasado(this.objWa);
       }
     }
@@ -352,7 +352,7 @@ export class EnviadorComponent implements OnInit {
         }
       );
       // Tiempo de retraso de envio en milisegundos
-    }, 10000);
+    }, 15000);
   }
 
   // Se oculta el boton y se muestra el progressbar
