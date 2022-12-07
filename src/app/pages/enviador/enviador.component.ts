@@ -17,6 +17,7 @@ export class EnviadorComponent implements OnInit {
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
+  mensajeSaludo = 'Buenos días ';
   mensajeWa = '';
   nombreCliente = '';
   numeroCliente = '';
@@ -48,8 +49,6 @@ export class EnviadorComponent implements OnInit {
     this.mensajeWa = (<HTMLInputElement>(
       document.getElementById('mensajeEscrito')
     )).value;
-
-    this.objWa.message = this.mensajeWa;
   }
 
   // Al seleccionar el archivo XLS
@@ -101,6 +100,7 @@ export class EnviadorComponent implements OnInit {
               //console.log(this.clientesWa[this.index]);
               this.nombreCliente = this.clientesWa[this.index].NOMBRE;
               this.numeroCliente = this.clientesWa[this.index].NRO_CEL;
+              
             }
           }
         }
@@ -286,6 +286,7 @@ export class EnviadorComponent implements OnInit {
       if (i === this.index) {
         this.objWa.phone = this.clientesWa[i].NRO_CEL;
         this.nombreCliente = this.clientesWa[i].NOMBRE;
+        this.objWa.message = this.mensajeSaludo + this.nombreCliente + ". " + this.mensajeWa;
         this.envioRetrasado(this.objWa);
       }
     }

@@ -55,7 +55,7 @@
           </div>
         </div>
       </div>
-
+      <p class="card-text"><small class="text-muted">{{mensajeSaludo}} NOMBRE DEL CLIENTE:</small></p>
       <div class="row" id="mensajeBox">
         <textarea
           class="form-control"
@@ -63,7 +63,7 @@
           id="mensajeEscrito"
           cols="30"
           rows="10"
-          placeholder="Escriba el mensaje a enviar"
+          placeholder="Escriba solamente el mensaje que va después del saludo..."
           style="margin-top: 10px"
           (input)="onChangeTextArea($event)"
         ></textarea>
