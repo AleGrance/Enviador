@@ -7,17 +7,17 @@ import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-enviador',
-  templateUrl: './enviador.component.html',
-  styleUrls: ['./enviador.component.css'],
+  templateUrl: './enviador-comercial.component.html',
+  styleUrls: ['./enviador-comercial.component.css'],
 })
-export class EnviadorComponent implements OnInit {
+export class EnviadorComercialComponent implements OnInit {
   // Nombre del archivo que se muestra en el html
   fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
   fileTypeExcel = '';
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
-  mensajeSaludo = '';
+  mensajeSaludo = 'Buenos días ';
   mensajeWa = '';
   nombreCliente = '';
   numeroCliente = '';
@@ -55,6 +55,8 @@ export class EnviadorComponent implements OnInit {
     this.mensajeSaludo = (<HTMLInputElement>(
       document.getElementById('saludo')
     )).value;
+
+    console.log(this.mensajeSaludo);
   }
 
   // Al seleccionar el archivo XLS
@@ -375,15 +377,16 @@ export class EnviadorComponent implements OnInit {
   resetFormulario() {
     this.clientesWa = [];
     this.fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
-    this.deleteMediaFile();
-    this.mensajeSaludo = '';
+    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
     this.mensajeWa = '';
-    (<HTMLInputElement>document.getElementById('excelFile')).value = '';
-    (<HTMLInputElement>document.getElementById('saludo')).value = '';
     (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
-    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display = 'block';
-    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display ='none';
-    (<HTMLInputElement>document.getElementById('progressBar')).style.display = 'none';
+    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
+      'block';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('excelFile')).value = '';
   }
 
   // Eliminar la imagen seleccionada

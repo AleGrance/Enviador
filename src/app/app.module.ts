@@ -7,11 +7,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EnviadorComponent } from './pages/enviador/enviador.component';
-
+import { EnviadorAtcComponent } from './pages/enviador-atc/enviador-atc.component';
+import { EnviadorComercialComponent } from './pages/enviador-comercial/enviador-comercial.component';
+import { EnviadorVentasComponent } from './pages/enviador-ventas/enviador-ventas.component';
 @NgModule({
   declarations: [
     AppComponent,
-    EnviadorComponent
+    EnviadorComponent,
+    EnviadorAtcComponent,
+    EnviadorComercialComponent,
+    EnviadorVentasComponent
   ],
   imports: [
     CommonModule, // Se importa para el toastr
