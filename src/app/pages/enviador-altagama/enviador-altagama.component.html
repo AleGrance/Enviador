@@ -1,0 +1,143 @@
+<!-- 
+  
+  
+  Este enviador tiene el alcance de:
+  --Recorrer la lista de clientes y leer los numeros
+  --Enviar texto
+  --Enviar archivos (xls/ods/jpeg/png/pdf)
+  --Agregar saludo por input
+  --Lee y escribe el nombre del cliente en el cuerpo del mensaje completo 
+
+
+-->
+
+
+<div class="contenedor" role="main">
+    <!-- Elementos del enviador -->
+    <div class="card-container" style="margin: auto; max-width: 500px;">
+      <div class="card-header">
+        <h2>Enviador Web 1.0</h2>
+      </div>
+  
+      <div class="card-body" style="padding-bottom: 0px;">
+        <div class="row" id="inputExcel">
+          <p style="margin: 0px;">Seleccione el listado:</p>
+          <div class="input-group mb-3">
+            <div class="custom-file">
+              <input
+                type="file"
+                class="custom-file-input"
+                id="excelFile"
+                aria-describedby="inputGroupFileAddon01"
+                lang="es"
+                (change)="handleXLSFile($event)"
+              />
+              <label
+                id="fileName"
+                class="custom-file-label"
+                for="inputGroupFile01"
+                >{{ fileNameXLS }}</label
+              >
+            </div>
+          </div>
+        </div>
+  
+        <div class="row" id="inputImage">
+          <p style="margin: 0px;">Seleccione la imagen:</p>
+          <div class="input-group mb-3">
+            <div class="custom-file">
+              <input
+                type="file"
+                class="custom-file-input"
+                id="mediaFile"
+                aria-describedby="inputGroupFileAddon01"
+                lang="es"
+                (change)="handleMediaFile($event)"
+              />
+              <label class="custom-file-label" for="inputGroupFile01">{{
+                fileNameMedia
+              }}</label>
+            </div>
+            <div class="input-group-append">
+              <button
+                class="btn btn-outline-danger"
+                type="button"
+                (click)="deleteMediaFile()"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+  
+        <!-- <p class="card-text"><small class="text-muted">{{mensajeSaludo}} NOMBRE DEL CLIENTE:</small></p> -->
+        <div class="row" id="inputSaludo">
+          <input type="text" class="form-control" name="" id="saludo" placeholder="Escriba el saludo generico. Ej: 'Buenos días Sr/a.'" (input)="onChangeSaludo($event)">
+        </div>
+  
+        <div class="row" id="mensajeBox">
+          <textarea
+            class="form-control"
+            name=""
+            id="mensajeEscrito"
+            cols="30"
+            rows="10"
+            placeholder="Escriba el mensaje que va despues del nombre del cliente..."
+            style="margin-top: 10px"
+            (input)="onChangeTextArea($event)"
+          ></textarea>
+        </div>
+  
+        <div class="row" id="enviarUno" hidden>
+          <button
+            class="btn btn-outline-success"
+            type="button"
+            (click)="enviarMensaje()"
+            style="margin-top: 10px"
+            data-toggle="modal"
+            data-target="#staticBackdrop"
+          >
+            Enviar a:
+          </button>
+          <label style="margin-top: 20px; margin-left: 10px"
+            >{{ nombreCliente }} {{ numeroCliente }}</label
+          >
+        </div>
+  
+        <div class="row" id="enviarTodos">
+          <button
+            class="btn btn-outline-success"
+            type="button"
+            (click)="enviarTodos()"
+            style="margin-top: 10px"
+            data-toggle="modal"
+            data-target="#staticBackdrop"
+          >
+            Enviar a todos
+          </button>
+        </div>
+  
+        <div
+          class="row"
+          id="labelEnviando"
+          style="display: none;"
+        >
+          <label>Enviando mensaje, favor espere...</label>
+        </div>
+  
+        <div class="progress" id="progressBar" style="display: none;">
+          <div
+            class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+            role="progressbar"
+            aria-valuenow="25"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {{ progressBarText }}
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  

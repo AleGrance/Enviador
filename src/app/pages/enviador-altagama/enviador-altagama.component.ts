@@ -4,20 +4,19 @@ import { map, timeout } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import * as XLSX from 'xlsx';
-
 @Component({
-  selector: 'app-enviador',
-  templateUrl: './enviador.component.html',
-  styleUrls: ['./enviador.component.css'],
+  selector: 'app-enviador-altagama',
+  templateUrl: './enviador-altagama.component.html',
+  styleUrls: ['./enviador-altagama.component.css'],
 })
-export class EnviadorComponent implements OnInit {
+export class EnviadorAltagamaComponent implements OnInit {
   // Nombre del archivo que se muestra en el html
   fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
   fileTypeExcel = '';
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
-  //mensajeSaludo = '';
+  mensajeSaludo = '';
   mensajeWa = '';
   nombreCliente = '';
   numeroCliente = '';
@@ -51,18 +50,18 @@ export class EnviadorComponent implements OnInit {
     )).value;
   }
   // Al escribir el saludo
-  // onChangeSaludo(e: any) {
-  //   this.mensajeSaludo = (<HTMLInputElement>(
-  //     document.getElementById('saludo')
-  //   )).value;
-  // }
+  onChangeSaludo(e: any) {
+    this.mensajeSaludo = (<HTMLInputElement>(
+      document.getElementById('saludo')
+    )).value;
+  }
 
   // Al seleccionar el archivo XLS
   handleXLSFile(event: any) {
     // the only MIME types allowed
     const allowed_types = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.oasis.opendocument.spreadsheet'
+      'application/vnd.oasis.opendocument.spreadsheet',
     ];
 
     this.index = 0;
@@ -291,8 +290,9 @@ export class EnviadorComponent implements OnInit {
       if (i === this.index) {
         this.objWa.phone = this.clientesWa[i].NRO_CEL;
         this.nombreCliente = this.clientesWa[i].NOMBRE;
-        //this.objWa.message = this.mensajeSaludo + " " + this.nombreCliente + ". " + this.mensajeWa;
-        this.objWa.message = this.mensajeWa;
+        this.objWa.message =
+          this.mensajeSaludo + ' ' + this.nombreCliente + '. ' + this.mensajeWa;
+        //this.objWa.message = this.mensajeWa;
         this.envioRetrasado(this.objWa);
       }
     }
@@ -309,10 +309,15 @@ export class EnviadorComponent implements OnInit {
             //console.log(errMsg);
 
             if (errMsg === 'Escanee el código') {
-              this.toastr.error(result.responseExSave.error + " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>", 'Error', {
-                timeOut: 0,
-                enableHtml: true
-              });
+              this.toastr.error(
+                result.responseExSave.error +
+                  " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>",
+                'Error',
+                {
+                  timeOut: 0,
+                  enableHtml: true,
+                }
+              );
               this.resetFormulario();
               return;
             }
@@ -376,14 +381,17 @@ export class EnviadorComponent implements OnInit {
     this.clientesWa = [];
     this.fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
     this.deleteMediaFile();
-    //this.mensajeSaludo = '';
+    this.mensajeSaludo = '';
     this.mensajeWa = '';
     (<HTMLInputElement>document.getElementById('excelFile')).value = '';
-    //(<HTMLInputElement>document.getElementById('saludo')).value = '';
+    (<HTMLInputElement>document.getElementById('saludo')).value = '';
     (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
-    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display = 'block';
-    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display ='none';
-    (<HTMLInputElement>document.getElementById('progressBar')).style.display = 'none';
+    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
+      'block';
+    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
+      'none';
   }
 
   // Eliminar la imagen seleccionada
