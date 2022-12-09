@@ -377,7 +377,7 @@ export class EnviadorComercialComponent implements OnInit {
   resetFormulario() {
     this.clientesWa = [];
     this.fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
-    this.fileNameMedia = 'Subir un archivo JPG/PDF...';
+    this.deleteMediaFile();
     this.mensajeWa = '';
     (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
     (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =

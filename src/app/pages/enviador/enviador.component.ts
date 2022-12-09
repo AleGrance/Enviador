@@ -77,7 +77,7 @@ export class EnviadorComponent implements OnInit {
       this.fileTypeExcel = fi.type;
     }
 
-    console.log(this.fileTypeExcel);
+    //console.log(this.fileTypeExcel);
 
     if (!allowed_types.includes(this.fileTypeExcel)) {
       //define the error message due to wrong MIME type
@@ -99,7 +99,7 @@ export class EnviadorComponent implements OnInit {
         if (sheets.length) {
           const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheets[0]]);
           this.clientesWa = rows;
-          console.log(this.clientesWa);
+          //console.log(this.clientesWa);
 
           for (let i = 0; i < this.clientesWa.length; i++) {
             if (i === this.index) {
@@ -119,7 +119,7 @@ export class EnviadorComponent implements OnInit {
     this.fileInput = fileToUpload.target.files[0];
     this.fileNameMedia = this.fileInput.name;
     this.fileSizeMedia = this.fileInput.size;
-    console.log(this.fileInput);
+    //console.log(this.fileInput);
 
     // check for image to upload
     // this checks if the user has uploaded any file
@@ -199,10 +199,10 @@ export class EnviadorComponent implements OnInit {
         this.objWa.fileName = this.fileNameMedia;
         this.objWa.fileSize = this.fileSizeMedia;
 
-        console.log('Mime type: ', this.fileMimeTypeMedia);
-        console.log('Base64: ', this.fileBase64Media);
-        console.log('Name: ', this.fileNameMedia);
-        console.log('Size: ', this.fileSizeMedia);
+        // console.log('Mime type: ', this.fileMimeTypeMedia);
+        // console.log('Base64: ', this.fileBase64Media);
+        // console.log('Name: ', this.fileNameMedia);
+        // console.log('Size: ', this.fileSizeMedia);
       };
       // reader as data url
       reader.readAsDataURL(fileToUpload.target.files[0]);
@@ -235,18 +235,18 @@ export class EnviadorComponent implements OnInit {
           this.changeProgressBar(this.index);
           this.recorrerArray();
         } else {
-          console.log('result post: ', result);
+          //console.log('result post: ', result);
           this.toastr.warning(result);
         }
-        console.log('La respuesta de la api: ', result.responseExSave);
+        //console.log('La respuesta de la api: ', result.responseExSave);
       },
       (error) => {
-        console.log('Si hay error en el post: ', error);
+        console.log('Hay error en el metodo post: ', error);
         this.toastr.error(error, 'Error', { timeOut: 0 });
       }
     );
 
-    console.log('Lo que se envia a la api: ', this.objWa);
+    //console.log('Lo que se envia a la api: ', this.objWa);
   }
 
   // Recorre el array de clientes y muestra el siguiente contacto a enviar -- UNO POR UNO
@@ -306,7 +306,7 @@ export class EnviadorComponent implements OnInit {
           // Checks if there is an error in the response before continue
           if (result.responseExSave.error) {
             const errMsg = result.responseExSave.error.slice(0, 17);
-            console.log(errMsg);
+            //console.log(errMsg);
 
             if (errMsg === 'Escanee el código') {
               this.toastr.error(result.responseExSave.error + " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>", 'Error', {
@@ -341,15 +341,15 @@ export class EnviadorComponent implements OnInit {
           //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
           if (result.responseExSave.id) {
             //this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
-            console.log('Lo que se envia a la API: ', param);
+            //console.log('Lo que se envia a la API: ', param);
             this.index += 1;
             this.changeProgressBar(this.index);
             this.enviarTodos();
           } else {
-            console.log('result post: ', result);
+            //console.log('result post: ', result);
             this.toastr.warning(result);
           }
-          console.log('La respuesta de la api: ', result.responseExSave);
+          //console.log('La respuesta de la api: ', result.responseExSave);
         },
         (error) => {
           this.toastr.error(error.message, 'Error', {

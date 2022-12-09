@@ -12,14 +12,14 @@
 
 <div class="contenedor" role="main">
   <!-- Elementos del enviador -->
-  <div class="card-container" style="margin: auto; max-width: 500px">
+  <div class="card-container" style="margin: auto; max-width: 500px;">
     <div class="card-header">
       <h2>Enviador Web 1.0</h2>
     </div>
 
-    <div class="card-body">
+    <div class="card-body" style="padding-bottom: 0px;">
       <div class="row" id="inputExcel">
-        <p>Seleccione el listado:</p>
+        <p style="margin: 0px;">Seleccione el listado:</p>
         <div class="input-group mb-3">
           <div class="custom-file">
             <input
@@ -41,7 +41,7 @@
       </div>
 
       <div class="row" id="inputImage">
-        <p>Seleccione la imagen:</p>
+        <p style="margin: 0px;">Seleccione la imagen:</p>
         <div class="input-group mb-3">
           <div class="custom-file">
             <input
@@ -69,8 +69,8 @@
       </div>
 
       <!-- <p class="card-text"><small class="text-muted">{{mensajeSaludo}} NOMBRE DEL CLIENTE:</small></p> -->
-      <div class="row">
-        <input type="text" class="form-control" name="" id="saludo" placeholder="Escriba el saludo generico..." (input)="onChangeSaludo($event)">
+      <div class="row" id="inputSaludo">
+        <input type="text" class="form-control" name="" id="saludo" placeholder="Escriba el saludo generico. Ej: 'Buenos días Sr/a.'" (input)="onChangeSaludo($event)">
       </div>
 
       <div class="row" id="mensajeBox">
@@ -118,12 +118,12 @@
       <div
         class="row"
         id="labelEnviando"
-        style="display: none; margin-top: 10px"
+        style="display: none;"
       >
         <label>Enviando mensaje, favor espere...</label>
       </div>
 
-      <div class="progress" id="progressBar" style="display: none">
+      <div class="progress" id="progressBar" style="display: none;">
         <div
           class="progress-bar progress-bar-striped progress-bar-animated bg-success"
           role="progressbar"
@@ -134,6 +134,7 @@
           {{ progressBarText }}
         </div>
       </div>
+      
     </div>
   </div>
 </div>
