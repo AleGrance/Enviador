@@ -56,6 +56,9 @@
         </div>
       </div>
       <!-- <p class="card-text"><small class="text-muted">{{mensajeSaludo}} NOMBRE DEL CLIENTE:</small></p> -->
+      <div class="row">
+        <input type="text" name="" id="saludo" placeholder="Escriba el saludo generico..." (input)="onChangeSaludo($event)">
+      </div>
       <div class="row" id="mensajeBox">
         <textarea
           class="form-control"
@@ -63,7 +66,7 @@
           id="mensajeEscrito"
           cols="30"
           rows="10"
-          placeholder="Escriba el mensaje..."
+          placeholder="Escriba el mensaje que va despues del nombre del cliente..."
           style="margin-top: 10px"
           (input)="onChangeTextArea($event)"
         ></textarea>

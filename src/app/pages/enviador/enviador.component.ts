@@ -50,6 +50,14 @@ export class EnviadorComponent implements OnInit {
       document.getElementById('mensajeEscrito')
     )).value;
   }
+  // Al escribir el saludo
+  onChangeSaludo(e: any) {
+    this.mensajeSaludo = (<HTMLInputElement>(
+      document.getElementById('saludo')
+    )).value;
+
+    console.log(this.mensajeSaludo);
+  }
 
   // Al seleccionar el archivo XLS
   handleXLSFile(event: any) {
@@ -285,8 +293,8 @@ export class EnviadorComponent implements OnInit {
       if (i === this.index) {
         this.objWa.phone = this.clientesWa[i].NRO_CEL;
         this.nombreCliente = this.clientesWa[i].NOMBRE;
-        //this.objWa.message = this.mensajeSaludo + this.nombreCliente + ". " + this.mensajeWa;
-        this.objWa.message = this.mensajeWa;
+        this.objWa.message = this.mensajeSaludo + " " + this.nombreCliente + ". " + this.mensajeWa;
+        //this.objWa.message = this.mensajeWa;
         this.envioRetrasado(this.objWa);
       }
     }
