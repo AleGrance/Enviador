@@ -14,6 +14,13 @@ export class EnviadorAltagamaComponent implements OnInit {
   fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
   fileTypeExcel = '';
 
+  // Fecha para controlar la cantidad de envíos por fecha
+  fechaHoy: any;
+  fechaAlmacenada: any;
+
+  // Contador de envíos
+  contadorEnvios = 0;
+
   // Para enviar el mensaje
   clientesWa: any[] = [];
   mensajeSaludo = '';
@@ -41,7 +48,54 @@ export class EnviadorAltagamaComponent implements OnInit {
 
   constructor(private api: ApiService, private toastr: ToastrService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+
+    this.fechaHoy = dd + '/' + mm + '/' + yyyy;
+
+    if (!localStorage.getItem('Contador')) {
+      localStorage.setItem('Contador', this.contadorEnvios.toString());
+    } else {
+      this.checkCounter();
+    }
+
+    if (!localStorage.getItem('Fecha')) {
+      localStorage.setItem('Fecha', this.fechaHoy);
+    } else {
+      this.checkDates();
+    }
+  }
+
+  // Comparar las fechas
+  checkDates() {
+    this.fechaAlmacenada = localStorage.getItem('Fecha');
+    if (this.fechaAlmacenada != this.fechaHoy) {
+      localStorage.setItem('Fecha', this.fechaHoy);
+      this.resetCounter();
+    }
+  }
+
+  // Check counter return number
+  checkCounter() {
+    let contadorStorage: any = localStorage.getItem('Contador');
+    this.contadorEnvios = parseFloat(contadorStorage);
+    console.log('Envios realizados el dia de hoy: ', this.contadorEnvios);
+  }
+
+  // Reset contador
+  resetCounter() {
+    this.contadorEnvios = 0;
+    localStorage.setItem('Contador', this.contadorEnvios.toString());
+  }
+
+  // Update counter
+  increaseCounter() {
+    this.contadorEnvios += 1;
+    localStorage.setItem('Contador', this.contadorEnvios.toString());
+  }
 
   // Escribir mensaje y cargar el texto en una variable.
   onChangeTextArea(e: any) {
@@ -272,6 +326,17 @@ export class EnviadorAltagamaComponent implements OnInit {
       return;
     }
 
+    if (this.contadorEnvios > 999) {
+      this.toastr.error(
+        'El enviador masivo detectó que se ha superado el límite de envíos por día',
+        'Error',
+        {
+          timeOut: 0,
+        }
+      );
+      return;
+    }
+
     // Si ya se recorrió toda la lista
     if (this.index > this.clientesWa.length - 1) {
       setTimeout(() => {
@@ -306,12 +371,26 @@ export class EnviadorAltagamaComponent implements OnInit {
           // Checks if there is an error in the response before continue
           if (result.responseExSave.error) {
             const errMsg = result.responseExSave.error.slice(0, 17);
-            //console.log(errMsg);
+            console.log(errMsg);
 
             if (errMsg === 'Escanee el código') {
               this.toastr.error(
                 result.responseExSave.error +
                   " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>",
+                'Error',
+                {
+                  timeOut: 0,
+                  enableHtml: true,
+                }
+              );
+              this.resetFormulario();
+              return;
+            }
+
+            if (errMsg === 'Protocol error (R') {
+              this.toastr.error(
+                "Se ha cerrado la sesión, inicie nuevamente escaneando el código " +
+                  " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>" + ". Antes de escanear el código reinicie la aplicación y actualice con F5 la pestaña de la imagen QR." ,
                 'Error',
                 {
                   timeOut: 0,
@@ -348,6 +427,7 @@ export class EnviadorAltagamaComponent implements OnInit {
             //this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
             //console.log('Lo que se envia a la API: ', param);
             this.index += 1;
+            this.increaseCounter();
             this.changeProgressBar(this.index);
             this.enviarTodos();
           } else {
