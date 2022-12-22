@@ -359,8 +359,6 @@ export class EnviadorComponent implements OnInit {
     this.showProgressBar();
 
     for (let i = 0; i < this.clientesWa.length; i++) {
-      //console.log("El nro es_ ", this.clientesWa[i].NRO_CEL);
-      
       if (i === this.index) {
         this.objWa.phone = this.clientesWa[i].NRO_CEL;
         this.nombreCliente = this.clientesWa[i].NOMBRE;

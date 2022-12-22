@@ -362,9 +362,14 @@ export class EnviadorAltagamaComponent implements OnInit {
       if (i === this.index) {
         this.objWa.phone = this.clientesWa[i].NRO_CEL;
         this.nombreCliente = this.clientesWa[i].NOMBRE;
-        this.objWa.message =
-          this.mensajeSaludo + ' ' + this.nombreCliente + '. ' + this.mensajeWa;
+        this.objWa.message = this.mensajeSaludo + ' ' + this.nombreCliente + '. ' + this.mensajeWa;
         //this.objWa.message = this.mensajeWa;
+        if (!this.clientesWa[i].NRO_CEL) {
+          this.toastr.error('El campo NUMERO_CEL en la fila '+(i+2)+' esta vacio. Revise la planilla!', 'Enviador Alert', {
+            timeOut: 0,
+          });
+          return;
+        }
         this.envioRetrasado(this.objWa);
       }
     }
