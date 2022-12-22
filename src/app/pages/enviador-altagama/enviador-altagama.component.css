@@ -1,8 +1,18 @@
 .contenedor {
     margin: auto;
-    margin-top: 12px;
+    margin-top: 8px;
     max-width: 400px;
     min-height: 600px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 4px;
+    background-color: #ffffff;
+}
+
+.contenedorInfo {
+    margin: auto;
+    margin-top: 8px;
+    max-width: 400px;
+    min-height: 500px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     border-radius: 4px;
     background-color: #ffffff;

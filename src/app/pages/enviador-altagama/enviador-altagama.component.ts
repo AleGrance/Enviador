@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
-import { map, timeout } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import * as XLSX from 'xlsx';
+
 @Component({
   selector: 'app-enviador-altagama',
   templateUrl: './enviador-altagama.component.html',
@@ -20,6 +20,8 @@ export class EnviadorAltagamaComponent implements OnInit {
 
   // Contador de envíos
   contadorEnvios = 0;
+  limitePorDía = 500;
+  tiempoRestraso = 15000;
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
@@ -103,6 +105,7 @@ export class EnviadorAltagamaComponent implements OnInit {
       document.getElementById('mensajeEscrito')
     )).value;
   }
+
   // Al escribir el saludo
   onChangeSaludo(e: any) {
     this.mensajeSaludo = (<HTMLInputElement>(
@@ -249,8 +252,11 @@ export class EnviadorAltagamaComponent implements OnInit {
 
         this.objWa.mimeType = this.fileMimeTypeMedia;
         this.objWa.data = this.fileBase64Media;
-        this.objWa.fileName = this.fileNameMedia;
         this.objWa.fileSize = this.fileSizeMedia;
+
+        if (this.fileMimeTypeMedia === 'application/pdf') {
+          this.objWa.fileName = this.mensajeWa;
+        }
 
         // console.log('Mime type: ', this.fileMimeTypeMedia);
         // console.log('Base64: ', this.fileBase64Media);
@@ -326,7 +332,8 @@ export class EnviadorAltagamaComponent implements OnInit {
       return;
     }
 
-    if (this.contadorEnvios > 999) {
+    // Si supera la cantidad establecida por día
+    if (this.contadorEnvios > this.limitePorDía) {
       this.toastr.error(
         'El enviador masivo detectó que se ha superado el límite de envíos por día',
         'Error',
@@ -389,8 +396,9 @@ export class EnviadorAltagamaComponent implements OnInit {
 
             if (errMsg === 'Protocol error (R') {
               this.toastr.error(
-                "Se ha cerrado la sesión, inicie nuevamente escaneando el código " +
-                  " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>" + ". Antes de escanear el código reinicie la aplicación y actualice con F5 la pestaña de la imagen QR." ,
+                'Se ha cerrado la sesión, inicie nuevamente escaneando el código ' +
+                  " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>" +
+                  '. Antes de escanear el código reinicie la aplicación y actualice con F5 la pestaña de la imagen QR.',
                 'Error',
                 {
                   timeOut: 0,
@@ -443,7 +451,7 @@ export class EnviadorAltagamaComponent implements OnInit {
         }
       );
       // Tiempo de retraso de envio en milisegundos
-    }, 15000);
+    }, this.tiempoRestraso);
   }
 
   // Se oculta el boton y se muestra el progressbar

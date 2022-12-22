@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
-import { map, timeout } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 import * as XLSX from 'xlsx';
@@ -14,6 +13,15 @@ export class EnviadorComponent implements OnInit {
   // Nombre del archivo que se muestra en el html
   fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
   fileTypeExcel = '';
+
+  // Fecha para controlar la cantidad de envíos por fecha
+  fechaHoy: any;
+  fechaAlmacenada: any;
+
+  // Contador de envíos
+  contadorEnvios = 0;
+  limitePorDía = 500;
+  tiempoRestraso = 15000;
 
   // Para enviar el mensaje
   clientesWa: any[] = [];
@@ -42,7 +50,54 @@ export class EnviadorComponent implements OnInit {
 
   constructor(private api: ApiService, private toastr: ToastrService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+
+    this.fechaHoy = dd + '/' + mm + '/' + yyyy;
+
+    if (!localStorage.getItem('Contador')) {
+      localStorage.setItem('Contador', this.contadorEnvios.toString());
+    } else {
+      this.checkCounter();
+    }
+
+    if (!localStorage.getItem('Fecha')) {
+      localStorage.setItem('Fecha', this.fechaHoy);
+    } else {
+      this.checkDates();
+    }
+  }
+
+  // Comparar las fechas
+  checkDates() {
+    this.fechaAlmacenada = localStorage.getItem('Fecha');
+    if (this.fechaAlmacenada != this.fechaHoy) {
+      localStorage.setItem('Fecha', this.fechaHoy);
+      this.resetCounter();
+    }
+  }
+
+  // Check counter return number
+  checkCounter() {
+    let contadorStorage: any = localStorage.getItem('Contador');
+    this.contadorEnvios = parseFloat(contadorStorage);
+    console.log('Envios realizados el dia de hoy: ', this.contadorEnvios);
+  }
+
+  // Reset contador
+  resetCounter() {
+    this.contadorEnvios = 0;
+    localStorage.setItem('Contador', this.contadorEnvios.toString());
+  }
+
+  // Update counter
+  increaseCounter() {
+    this.contadorEnvios += 1;
+    localStorage.setItem('Contador', this.contadorEnvios.toString());
+  }
 
   // Escribir mensaje y cargar el texto en una variable.
   onChangeTextArea(e: any) {
@@ -50,6 +105,7 @@ export class EnviadorComponent implements OnInit {
       document.getElementById('mensajeEscrito')
     )).value;
   }
+
   // Al escribir el saludo
   // onChangeSaludo(e: any) {
   //   this.mensajeSaludo = (<HTMLInputElement>(
@@ -62,7 +118,7 @@ export class EnviadorComponent implements OnInit {
     // the only MIME types allowed
     const allowed_types = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.oasis.opendocument.spreadsheet'
+      'application/vnd.oasis.opendocument.spreadsheet',
     ];
 
     this.index = 0;
@@ -196,8 +252,11 @@ export class EnviadorComponent implements OnInit {
 
         this.objWa.mimeType = this.fileMimeTypeMedia;
         this.objWa.data = this.fileBase64Media;
-        this.objWa.fileName = this.fileNameMedia;
         this.objWa.fileSize = this.fileSizeMedia;
+
+        if (this.fileMimeTypeMedia === 'application/pdf') {
+          this.objWa.fileName = this.mensajeWa;
+        }
 
         // console.log('Mime type: ', this.fileMimeTypeMedia);
         // console.log('Base64: ', this.fileBase64Media);
@@ -259,7 +318,7 @@ export class EnviadorComponent implements OnInit {
     }
   }
 
-  // Envia el mensaje a todos lo de la lista cada 10 seg -- MASIVO CONTINUO
+  // Envia el mensaje a todos lo de la lista cada 25 seg -- MASIVO CONTINUO
   enviarTodos() {
     // Si no hay archivo seleccionado se muestra el mensaje de alerta
     if (this.clientesWa.length === 0) {
@@ -270,6 +329,18 @@ export class EnviadorComponent implements OnInit {
     // Si no se escribió el mensaje
     if (this.mensajeWa.length === 0) {
       this.toastr.error('Escriba un mensaje!');
+      return;
+    }
+
+    // Si supera la cantidad establecida por día
+    if (this.contadorEnvios > this.limitePorDía) {
+      this.toastr.error(
+        'El enviador masivo detectó que se ha superado el límite de envíos por día',
+        'Error',
+        {
+          timeOut: 0,
+        }
+      );
       return;
     }
 
@@ -288,11 +359,19 @@ export class EnviadorComponent implements OnInit {
     this.showProgressBar();
 
     for (let i = 0; i < this.clientesWa.length; i++) {
+      //console.log("El nro es_ ", this.clientesWa[i].NRO_CEL);
+      
       if (i === this.index) {
         this.objWa.phone = this.clientesWa[i].NRO_CEL;
         this.nombreCliente = this.clientesWa[i].NOMBRE;
         //this.objWa.message = this.mensajeSaludo + " " + this.nombreCliente + ". " + this.mensajeWa;
         this.objWa.message = this.mensajeWa;
+        if (!this.clientesWa[i].NRO_CEL) {
+          this.toastr.error('El campo NUMERO_CEL en la fila '+(i+2)+' esta vacio. Revise la planilla!', 'Enviador Alert', {
+            timeOut: 0,
+          });
+          return;
+        }
         this.envioRetrasado(this.objWa);
       }
     }
@@ -309,10 +388,30 @@ export class EnviadorComponent implements OnInit {
             //console.log(errMsg);
 
             if (errMsg === 'Escanee el código') {
-              this.toastr.error(result.responseExSave.error + " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>", 'Error', {
-                timeOut: 0,
-                enableHtml: true
-              });
+              this.toastr.error(
+                result.responseExSave.error +
+                  " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>",
+                'Error',
+                {
+                  timeOut: 0,
+                  enableHtml: true,
+                }
+              );
+              this.resetFormulario();
+              return;
+            }
+
+            if (errMsg === 'Protocol error (R') {
+              this.toastr.error(
+                'Se ha cerrado la sesión, inicie nuevamente escaneando el código ' +
+                  " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>" +
+                  '. Antes de escanear el código reinicie la aplicación y actualice con F5 la pestaña de la imagen QR.',
+                'Error',
+                {
+                  timeOut: 0,
+                  enableHtml: true,
+                }
+              );
               this.resetFormulario();
               return;
             }
@@ -343,6 +442,7 @@ export class EnviadorComponent implements OnInit {
             //this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
             //console.log('Lo que se envia a la API: ', param);
             this.index += 1;
+            this.increaseCounter();
             this.changeProgressBar(this.index);
             this.enviarTodos();
           } else {
@@ -358,7 +458,7 @@ export class EnviadorComponent implements OnInit {
         }
       );
       // Tiempo de retraso de envio en milisegundos
-    }, 15000);
+    }, this.tiempoRestraso);
   }
 
   // Se oculta el boton y se muestra el progressbar
@@ -381,9 +481,12 @@ export class EnviadorComponent implements OnInit {
     (<HTMLInputElement>document.getElementById('excelFile')).value = '';
     //(<HTMLInputElement>document.getElementById('saludo')).value = '';
     (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
-    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display = 'block';
-    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display ='none';
-    (<HTMLInputElement>document.getElementById('progressBar')).style.display = 'none';
+    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
+      'block';
+    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
+      'none';
   }
 
   // Eliminar la imagen seleccionada
