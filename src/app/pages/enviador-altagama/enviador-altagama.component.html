@@ -1,6 +1,6 @@
-<!-- 
-  
-  
+<!--
+
+
   Este enviador tiene el alcance de:
   --Recorrer la lista de clientes y leer los numeros
   --Enviar texto
@@ -15,16 +15,16 @@
 <div class="container">
   <div class="row">
     <!-- Info -->
-    <div class="col">
-      
+    <div class="col-md-3">
+
     </div>
     <!-- Enviador -->
-    <div class="col">
+    <div class="col-md-6">
       <div class="card-container contenedor">
         <div class="card-header">
           <h2>Enviador Web 1.1</h2>
         </div>
-    
+
         <div class="card-body" style="padding-bottom: 0px">
           <div class="row" id="inputExcel">
             <p style="margin: 0px">Seleccione el listado:</p>
@@ -47,7 +47,7 @@
               </div>
             </div>
           </div>
-    
+
           <div class="row" id="inputImage">
             <p style="margin: 0px">Seleccione la imagen:</p>
             <div class="input-group mb-3">
@@ -75,7 +75,7 @@
               </div>
             </div>
           </div>
-    
+
           <!-- <p class="card-text"><small class="text-muted">{{mensajeSaludo}} NOMBRE DEL CLIENTE:</small></p> -->
           <div class="row" id="inputSaludo">
             <input
@@ -87,7 +87,7 @@
               (input)="onChangeSaludo($event)"
             />
           </div>
-    
+
           <div class="row" id="mensajeBox">
             <textarea
               class="form-control"
@@ -100,7 +100,7 @@
               (input)="onChangeTextArea($event)"
             ></textarea>
           </div>
-    
+
           <div class="row" id="enviarUno" hidden>
             <button
               class="btn btn-outline-success"
@@ -116,7 +116,7 @@
               >{{ nombreCliente }} {{ numeroCliente }}</label
             >
           </div>
-    
+
           <div class="row" id="enviarTodos">
             <button
               class="btn btn-outline-success"
@@ -129,11 +129,11 @@
               Enviar a todos
             </button>
           </div>
-    
+
           <div class="row" id="labelEnviando" style="display: none">
             <label>Enviando mensaje, favor espere...</label>
           </div>
-    
+
           <div class="progress" id="progressBar" style="display: none">
             <div
               class="progress-bar progress-bar-striped progress-bar-animated bg-success"
@@ -149,7 +149,7 @@
       </div>
     </div>
     <!-- Info -->
-    <div class="col">
+    <div class="col-md-3">
       <div class="card-content contenedorInfo">
         <div class="card-header">
           Info
