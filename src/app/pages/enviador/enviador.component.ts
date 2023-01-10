@@ -3,6 +3,7 @@ import { ApiService } from 'src/app/services/api.service';
 import { ToastrService } from 'ngx-toastr';
 
 import * as XLSX from 'xlsx';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-enviador',
@@ -270,7 +271,7 @@ export class EnviadorComponent implements OnInit {
   }
 
   // Envia el mensaje uno por uno -- UNO POR UNO
-  enviarMensaje() {
+  enviarMensajeUNO() {
     // Si no hay archivo seleccionado se muestra el mensaje de alerta
     if (this.clientesWa.length === 0) {
       this.toastr.error('Seleccionar un archivo!' + this.nombreCliente);
@@ -318,8 +319,12 @@ export class EnviadorComponent implements OnInit {
     }
   }
 
-  // Envia el mensaje a todos lo de la lista cada 25 seg -- MASIVO CONTINUO
-  enviarTodos() {
+  // Funcion de retraso para el for()
+  sleep = (tiempoRestraso: number) =>
+    new Promise((r) => setTimeout(r, tiempoRestraso));
+
+  // Recorre la lista cada 15 seg y ejecuta la Funcion POST -- MASIVO CONTINUO
+  async enviarTodos() {
     // Si no hay archivo seleccionado se muestra el mensaje de alerta
     if (this.clientesWa.length === 0) {
       this.toastr.error('Subir un archivo!');
@@ -344,47 +349,44 @@ export class EnviadorComponent implements OnInit {
       return;
     }
 
-    // Si ya se recorrió toda la lista
-    if (this.index > this.clientesWa.length - 1) {
-      setTimeout(() => {
-        this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
-          timeOut: 0,
-        });
-      }, 1000);
-
-      this.resetFormulario();
-      return;
-    }
-
     this.showProgressBar();
 
     for (let i = 0; i < this.clientesWa.length; i++) {
-      if (i === this.index) {
-        this.objWa.phone = this.clientesWa[i].NRO_CEL;
-        this.nombreCliente = this.clientesWa[i].NOMBRE;
-        //this.objWa.message = this.mensajeSaludo + " " + this.nombreCliente + ". " + this.mensajeWa;
-        this.objWa.message = this.mensajeWa;
-        if (!this.clientesWa[i].NRO_CEL) {
-          this.toastr.error('El campo NUMERO_CEL en la fila '+(i+2)+' esta vacio. Revise la planilla!', 'Enviador Alert', {
+      this.index = i;
+      this.objWa.phone = this.clientesWa[i].NRO_CEL;
+      this.nombreCliente = this.clientesWa[i].NOMBRE;
+      //this.objWa.message = this.mensajeSaludo + " " + this.nombreCliente + ". " + this.mensajeWa;
+      this.objWa.message = this.mensajeWa;
+      if (!this.clientesWa[i].NRO_CEL) {
+        this.toastr.error(
+          'El campo NUMERO_CEL en la fila ' +
+            (i + 2) +
+            ' esta vacio. Revise la planilla!',
+          'Enviador Alert',
+          {
             timeOut: 0,
-          });
-          return;
-        }
-        this.envioRetrasado(this.objWa);
+          }
+        );
+        return;
       }
+      this.enviarMensaje(this.objWa);
+      await this.sleep(this.tiempoRestraso);
     }
   }
 
-  // Funcion POST que retrasa el envio -- MASIVO CONTINUO
-  envioRetrasado(param: any) {
-    setTimeout(() => {
-      this.api.post('lead', this.objWa).subscribe(
-        (result: any) => {
-          // Checks if there is an error in the response before continue
+  // Funcion POST -- MASIVO CONTINUO
+  enviarMensaje(objWa: any) {
+    this.api
+      .post('lead', objWa)
+      .pipe(
+        map((result: any) => {
+          //console.log('Resultado del POST: ', result);
+
+          // Si hay errores...
           if (result.responseExSave.error) {
             const errMsg = result.responseExSave.error.slice(0, 17);
-            //console.log(errMsg);
 
+            // Error de vinculación. Si no esta logueado
             if (errMsg === 'Escanee el código') {
               this.toastr.error(
                 result.responseExSave.error +
@@ -399,11 +401,10 @@ export class EnviadorComponent implements OnInit {
               return;
             }
 
+            // Error de desvinculación de dispositivo. Si estaba logueado y luego desvinculó su disp
             if (errMsg === 'Protocol error (R') {
               this.toastr.error(
-                'Se ha cerrado la sesión, inicie nuevamente escaneando el código ' +
-                  " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>" +
-                  '. Antes de escanear el código reinicie la aplicación y actualice con F5 la pestaña de la imagen QR.',
+                'Se ha desvinculado el dispositivo, cierre el enviador y abralo nuevamente para vincular con su dispositivo ',
                 'Error',
                 {
                   timeOut: 0,
@@ -414,50 +415,222 @@ export class EnviadorComponent implements OnInit {
               return;
             }
 
+            // Error de num mal escrito.
             if (errMsg === 'Evaluation failed') {
               window.alert(
                 'Verificar el numero: ' +
-                  this.numeroCliente +
+                  objWa.phone +
                   ' se ha detenido el envío en este registro'
               );
 
-              this.toastr.error(result.responseExSave.error, 'Error', {
-                timeOut: 0,
-              });
+              this.toastr.error(
+                'Favor verificar el nro: ' + objWa.phone,
+                'Error!',
+                {
+                  timeOut: 0,
+                }
+              );
               this.resetFormulario();
               return;
             }
-
-            this.toastr.error(result.responseExSave.error, 'Error', {
-              timeOut: 0,
-            });
-            this.resetFormulario();
-            return;
           }
 
-          //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
+          // Si todo esta OK...
           if (result.responseExSave.id) {
             //this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
             //console.log('Lo que se envia a la API: ', param);
-            this.index += 1;
             this.increaseCounter();
-            this.changeProgressBar(this.index);
-            this.enviarTodos();
-          } else {
-            //console.log('result post: ', result);
-            this.toastr.warning(result);
+            this.changeProgressBar(this.index + 1);
+
+            // Si todo esta OK y ya se recorrió toda la lista
+            if (this.index === this.clientesWa.length - 1) {
+              setTimeout(() => {
+                this.toastr.info(
+                  'Se completó el envío masivo!',
+                  'Enviador Alert',
+                  {
+                    timeOut: 0,
+                  }
+                );
+              }, 1000);
+
+              this.resetFormulario();
+              return;
+            }
           }
-          //console.log('La respuesta de la api: ', result.responseExSave);
+        })
+      )
+      .subscribe({
+        // next(result: any) {
+        //   console.log(result);
+        // },
+        error(msg) {
+          alert(
+            'Error de conexión: ' +
+              msg.message +
+              'VUELVA A INICIAR EL ENVIADOR!'
+          );
+          console.log('Error en la consulta POST: ', msg.message);
+          return;
         },
-        (error) => {
-          this.toastr.error(error.message, 'Error', {
-            timeOut: 0,
-          });
-        }
-      );
-      // Tiempo de retraso de envio en milisegundos
-    }, this.tiempoRestraso);
+      });
   }
+
+
+  /**
+   * METODOS DE VERSIONES ANTERIORRES
+   * DESCOMENTAR enviarTodos() y envioRetrasado()
+   * COMENTAR async enviarTodos() y enviarMensaje(objWa: any)
+   * PARA VOLVER AL PASADO
+   *
+   */
+
+    // Envia el mensaje a todos lo de la lista cada 25 seg -- MASIVO CONTINUO
+  // enviarTodos() {
+  //   // Si no hay archivo seleccionado se muestra el mensaje de alerta
+  //   if (this.clientesWa.length === 0) {
+  //     this.toastr.error('Subir un archivo!');
+  //     return;
+  //   }
+
+  //   // Si no se escribió el mensaje
+  //   if (this.mensajeWa.length === 0) {
+  //     this.toastr.error('Escriba un mensaje!');
+  //     return;
+  //   }
+
+  //   // Si supera la cantidad establecida por día
+  //   if (this.contadorEnvios > this.limitePorDía) {
+  //     this.toastr.error(
+  //       'El enviador masivo detectó que se ha superado el límite de envíos por día',
+  //       'Error',
+  //       {
+  //         timeOut: 0,
+  //       }
+  //     );
+  //     return;
+  //   }
+
+  //   // Si ya se recorrió toda la lista
+  //   if (this.index > this.clientesWa.length - 1) {
+  //     setTimeout(() => {
+  //       this.toastr.info('Se completó el envío masivo!', 'Enviador Alert', {
+  //         timeOut: 0,
+  //       });
+  //     }, 1000);
+
+  //     this.resetFormulario();
+  //     return;
+  //   }
+
+  //   this.showProgressBar();
+
+  //   for (let i = 0; i < this.clientesWa.length; i++) {
+  //     if (i === this.index) {
+  //       this.objWa.phone = this.clientesWa[i].NRO_CEL;
+  //       this.nombreCliente = this.clientesWa[i].NOMBRE;
+  //       //this.objWa.message = this.mensajeSaludo + " " + this.nombreCliente + ". " + this.mensajeWa;
+  //       this.objWa.message = this.mensajeWa;
+  //       if (!this.clientesWa[i].NRO_CEL) {
+  //         this.toastr.error(
+  //           'El campo NUMERO_CEL en la fila ' +
+  //             (i + 2) +
+  //             ' esta vacio. Revise la planilla!',
+  //           'Enviador Alert',
+  //           {
+  //             timeOut: 0,
+  //           }
+  //         );
+  //         return;
+  //       }
+  //       this.envioRetrasado(this.objWa);
+  //     }
+  //   }
+  // }
+
+  // Funcion POST que retrasa el envio -- MASIVO CONTINUO
+  // envioRetrasado(param: any) {
+  //   setTimeout(() => {
+  //     this.api.post('lead', this.objWa).subscribe(
+  //       (result: any) => {
+  //         // Checks if there is an error in the response before continue
+  //         if (result.responseExSave.error) {
+  //           const errMsg = result.responseExSave.error.slice(0, 17);
+  //           //console.log(errMsg);
+
+  //           if (errMsg === 'Escanee el código') {
+  //             this.toastr.error(
+  //               result.responseExSave.error +
+  //                 " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>",
+  //               'Error',
+  //               {
+  //                 timeOut: 0,
+  //                 enableHtml: true,
+  //               }
+  //             );
+  //             this.resetFormulario();
+  //             return;
+  //           }
+
+  //           if (errMsg === 'Protocol error (R') {
+  //             this.toastr.error(
+  //               'Se ha cerrado la sesión, inicie nuevamente escaneando el código ' +
+  //                 " <a href='./assets/img/qr.svg' target='_blank'>Aqui</a>" +
+  //                 '. Antes de escanear el código reinicie la aplicación y actualice con F5 la pestaña de la imagen QR.',
+  //               'Error',
+  //               {
+  //                 timeOut: 0,
+  //                 enableHtml: true,
+  //               }
+  //             );
+  //             this.resetFormulario();
+  //             return;
+  //           }
+
+  //           if (errMsg === 'Evaluation failed') {
+  //             window.alert(
+  //               'Verificar el numero: ' +
+  //                 this.numeroCliente +
+  //                 ' se ha detenido el envío en este registro'
+  //             );
+
+  //             this.toastr.error(result.responseExSave.error, 'Error', {
+  //               timeOut: 0,
+  //             });
+  //             this.resetFormulario();
+  //             return;
+  //           }
+
+  //           this.toastr.error(result.responseExSave.error, 'Error', {
+  //             timeOut: 0,
+  //           });
+  //           this.resetFormulario();
+  //           return;
+  //         }
+
+  //         //Se actualiza la vista html si el result retorna un objeto, significa que inserto en la bd. De lo contrario muestra el mensaje de error que retorna el server
+  //         if (result.responseExSave.id) {
+  //           //this.toastr.success('Mensaje enviado a: ' + this.nombreCliente);
+  //           //console.log('Lo que se envia a la API: ', param);
+  //           this.index += 1;
+  //           this.increaseCounter();
+  //           this.changeProgressBar(this.index);
+  //           this.enviarTodos();
+  //         } else {
+  //           //console.log('result post: ', result);
+  //           this.toastr.warning(result);
+  //         }
+  //         //console.log('La respuesta de la api: ', result.responseExSave);
+  //       },
+  //       (error) => {
+  //         this.toastr.error(error.message, 'Error', {
+  //           timeOut: 0,
+  //         });
+  //       }
+  //     );
+  //     // Tiempo de retraso de envio en milisegundos
+  //   }, this.tiempoRestraso);
+  // }
 
   // Se oculta el boton y se muestra el progressbar
   showProgressBar() {
