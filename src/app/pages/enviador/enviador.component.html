@@ -13,9 +13,7 @@
 <div class="container">
   <div class="row">
     <!-- Info -->
-    <div class="col-md-3">
-
-    </div>
+    <div class="col-md-3"></div>
     <!-- Enviador -->
     <div class="col-md-6">
       <div class="card-container contenedor">
@@ -118,6 +116,12 @@
 
           <div class="row" id="labelEnviando" style="display: none">
             <label>Enviando mensaje, favor espere...</label>
+            <span
+              class="badge badge-danger"
+              (click)="cancelarEnvio()"
+              style="cursor: pointer"
+              >Cancelar envio</span
+            >
           </div>
 
           <div class="progress" id="progressBar" style="display: none">
@@ -137,21 +141,19 @@
     <!-- Info -->
     <div class="col-md-3">
       <div class="card-content contenedorInfo">
-        <div class="card-header">
-          Info
-        </div>
+        <div class="card-header">Info</div>
         <div class="card-body">
           <small>
             <p>Puedes cambiar el formato del texto de tus mensajes.</p>
-          <h5><strong>Cursiva</strong></h5>
-          Para escribir texto en <i>cursiva</i>, coloca un guión bajo antes y después
-          del texto: _texto_
-          <h5><strong>Negrita</strong></h5>
-          Para escribir texto en <b>negrita</b>, coloca un asterisco antes y después
-          del texto: *texto*
-          <h5><strong>Tachado</strong></h5>
-          Para escribir texto <del>tachado</del>, coloca una tilde antes y después del
-          texto: ~texto~
+            <h5><strong>Cursiva</strong></h5>
+            Para escribir texto en <i>cursiva</i>, coloca un guión bajo antes y
+            después del texto: _texto_
+            <h5><strong>Negrita</strong></h5>
+            Para escribir texto en <b>negrita</b>, coloca un asterisco antes y
+            después del texto: *texto*
+            <h5><strong>Tachado</strong></h5>
+            Para escribir texto <del>tachado</del>, coloca una tilde antes y
+            después del texto: ~texto~
           </small>
         </div>
       </div>

@@ -327,7 +327,7 @@ export class EnviadorComponent implements OnInit {
   async enviarTodos() {
     // Si no hay archivo seleccionado se muestra el mensaje de alerta
     if (this.clientesWa.length === 0) {
-      this.toastr.error('Subir un archivo!');
+      this.toastr.error('No se ha subido un archivo BASE...!');
       return;
     }
 
@@ -476,7 +476,6 @@ export class EnviadorComponent implements OnInit {
       });
   }
 
-
   /**
    * METODOS DE VERSIONES ANTERIORRES
    * DESCOMENTAR enviarTodos() y envioRetrasado()
@@ -485,7 +484,7 @@ export class EnviadorComponent implements OnInit {
    *
    */
 
-    // Envia el mensaje a todos lo de la lista cada 25 seg -- MASIVO CONTINUO
+  // Envia el mensaje a todos lo de la lista cada 25 seg -- MASIVO CONTINUO
   // enviarTodos() {
   //   // Si no hay archivo seleccionado se muestra el mensaje de alerta
   //   if (this.clientesWa.length === 0) {
@@ -652,6 +651,21 @@ export class EnviadorComponent implements OnInit {
     (<HTMLInputElement>document.getElementById('excelFile')).value = '';
     //(<HTMLInputElement>document.getElementById('saludo')).value = '';
     (<HTMLInputElement>document.getElementById('mensajeEscrito')).value = '';
+    (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
+      'block';
+    (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
+      'none';
+    (<HTMLInputElement>document.getElementById('progressBar')).style.display =
+      'none';
+  }
+
+  // Cancela el envio y borra el listado pero mantiene el texto y la imagen seleccionada
+  cancelarEnvio() {
+    this.clientesWa = [];
+    this.index = 0;
+    this.fileNameXLS = 'Subir un archivo XLS/XLSX/ODS...';
+    (<HTMLInputElement>document.getElementById('excelFile')).value = '';
+
     (<HTMLInputElement>document.getElementById('enviarTodos')).style.display =
       'block';
     (<HTMLInputElement>document.getElementById('labelEnviando')).style.display =
